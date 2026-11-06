@@ -299,7 +299,11 @@ export async function enrichPayload(
   const lpProtocols: LpRoute[] = [];
   const skippedIds: string[] = [];
   for (const p of protocols) {
-    const adapter = findAdapter(p.protocolId);
+    const chain = CHAINS[p.chain];
+    const adapter = findAdapter(p.protocolId, chain ? {
+      chainId: chain.chainId,
+      poolIds: p.items.map((item) => item.poolId),
+    } : undefined);
     const lpRoute = findLpRoute(p.protocolId);
     const chainSupported = Object.hasOwn(CHAINS, p.chain);
     if (adapter && chainSupported) supported.push({ p, adapter });

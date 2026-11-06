@@ -2,7 +2,7 @@
 
 [English](PRIVACY.md) · [中文](PRIVACY.zh-CN.md)
 
-适用于公开版 DeBank APY Lens v0.6.0。更新日期：2026-11-06。
+适用于公开版 DeBank APY Lens v0.7.0。更新日期：2026-11-06。
 
 ## 扩展读取的数据
 
@@ -25,6 +25,7 @@ ether.fi 使用公共 Ethereum RPC 读取 weETH 合约。新增的目录/利率�
 
 请求可能包含 chain ID、token/合约地址、market ID、NFT ID 及当前查看的钱包或代理地址。
 用户仓位、资格、待领奖励、链上余额和仓位查询需要时会使用公开钱包地址；RPC 服务商以 JSON-RPC 参数接收这些值。
+Aave V4 会接收当前查看的公开钱包地址，用于查询风险溢价、奖励资格/净额扣减及实际持仓 reserve ID。
 完整 DeBank 组合响应不会被发送到项目服务器。
 
 每个服务商可能接收 IP 地址和常规连接信息，并按自己的政策保留请求日志。点击来源链接会打开该服务商网站。

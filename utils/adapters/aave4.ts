@@ -1,37 +1,56 @@
 // Aave V4 官方 GraphQL 适配器（api.v4.aave.com，keyless）。
 // V4 是 hub-and-spoke 架构，与 v3 的 Market/aToken 模型完全不同，端点独立（v3 端点查不到 V4）。
-// schema 来源：aave/aave-v4-sdk repo（生产端 introspection 关闭），关键字段已实测（2026-07-10）：
+// Schema: aave/aave-v4-sdk; all current mainnets checked on 2026-11-06.
 //   - reserves(request:{query:{chainIds:[1]},filter:ALL})；PercentNumber.value 为小数（1.0=100%）
-//   - 奖励内联在 summary.rewards：MerklSupplyReward.extraApy（存款侧）/ MerklBorrowReward.discountApy（借款补贴）
-//   - 同一资产可出现在多个 spoke（风险配置不同）；DeBank item 的 pool.id 即 spoke 地址 → 优先精确匹配
-//   - 按请求链分别查询、缓存与合并；新部署无需修改 Ethereum 白名单。
+//   - Use userState.borrowApy and user-effective Merkl reward APY.
+//   - A spoke can list one token through multiple hubs; active reserve IDs select the user leg.
+//   - Query/cache by chain and wallet. No Ethereum-only whitelist.
 
 import type { LegQuery, LegRates, ProtocolAdapter, RewardState } from './types';
 import { fetchWithTimeout } from '../http';
 import { SharedAbortableLoad } from '../shared-load';
 import { getTtlLru, setTtlLru } from '../cache';
+import { aaveNativeAliases, aaveRequestKey } from './aave-identity';
 
 const ENDPOINT = 'https://api.v4.aave.com/graphql';
 const TTL_MS = 5 * 60 * 1000;
 export const AAVE_V4_SOURCE_TIMEOUT_MS = 8_000;
 
 interface V4Rates {
+  reserveId: string;
   s: number | null; // 存款基础 APY（小数）
   b: number | null; // 借款基础 APY（小数）
-  sr: number | null; // 存款侧 Merkl 奖励 APR（小数）
-  br: number | null; // 借款侧 Merkl 补贴 APR（小数）
+  sr: number | null; // Merkl supply reward APY, after user netting.
+  br: number | null; // Merkl borrow discount APY, after user netting.
   ss: RewardState;
   bs: RewardState;
   poolStat?: NonNullable<LegRates['poolStat']>;
 }
 
-type V4Snapshot = { at: number; bySpoke: Map<string, V4Rates> };
+type V4Snapshot = {
+  at: number;
+  bySpoke: Map<string, V4Rates[]>;
+  supplied: Set<string>;
+  borrowed: Set<string>;
+};
 
-const cache = new Map<number, V4Snapshot>();
-const coldLoads = new Map<number, SharedAbortableLoad<V4Snapshot>>();
+const cache = new Map<string, V4Snapshot>();
+const coldLoads = new Map<string, SharedAbortableLoad<V4Snapshot>>();
 
-const QUERY = `query Reserves($chainIds: [Int!]!) { reserves(request: { query: { chainIds: $chainIds }, filter: ALL }) {
-  spoke { address }
+const RESERVES_QUERY = `reserves(request: { query: { chainIds: $chainIds }, user: $user, filter: ALL }) {
+  id
+  spoke {
+    name address
+    chain {
+      chainId
+      nativeAsset {
+        __typename
+        ... on WrappedNativeAsset { wrappedNativeTokenAddress }
+        ... on SharedBalanceNativeAsset { erc20Address }
+      }
+    }
+  }
+  userState { borrowApy { value } }
   asset {
     underlying { address }
     summary {
@@ -44,11 +63,18 @@ const QUERY = `query Reserves($chainIds: [Int!]!) { reserves(request: { query: {
     borrowApy { value }
     rewards {
       __typename
-      ... on MerklSupplyReward { extraApy { value } }
-      ... on MerklBorrowReward { discountApy { value } }
+      ... on MerklSupplyReward { userEligible userEffectiveExtraApy { value } }
+      ... on MerklBorrowReward { userEligible userEffectiveDiscountApy { value } }
     }
   }
-} }`;
+}`;
+
+export const AAVE_V4_RESERVES_QUERY = `query Reserves($chainIds: [Int!]!, $user: EvmAddress) { ${RESERVES_QUERY} }`;
+export const AAVE_V4_USER_RESERVES_QUERY = `query UserReserves($chainIds: [Int!]!, $user: EvmAddress!) {
+  ${RESERVES_QUERY}
+  userSupplies(request: { query: { userChains: { user: $user, chainIds: $chainIds } } }) { reserve { id } }
+  userBorrows(request: { query: { userChains: { user: $user, chainIds: $chainIds } } }) { reserve { id } }
+}`;
 
 const frac = (v: unknown): number | null => {
   const n = typeof v === 'string' ? Number(v) : typeof v === 'number' ? v : NaN;
@@ -62,19 +88,25 @@ const amount = (v: unknown): number | null => {
   return Number.isFinite(n) && n >= 0 ? n : null;
 };
 
-async function fetchV4(chainId: number, signal: AbortSignal): Promise<V4Snapshot> {
+async function fetchV4(chainId: number, user: string | undefined, signal: AbortSignal): Promise<V4Snapshot> {
   const res = await fetchWithTimeout(ENDPOINT, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ query: QUERY, variables: { chainIds: [chainId] } }),
+    body: JSON.stringify({ query: user ? AAVE_V4_USER_RESERVES_QUERY : AAVE_V4_RESERVES_QUERY, variables: { chainIds: [chainId], user: user?.toLowerCase() ?? null } }),
     signal,
   }, AAVE_V4_SOURCE_TIMEOUT_MS);
   if (!res.ok) throw new Error(`aave v4 http ${res.status}`);
-  const body = (await res.json()) as { errors?: unknown[]; data?: { reserves?: Record<string, any>[] } };
+  const body = (await res.json()) as { errors?: unknown[]; data?: {
+    reserves?: Record<string, any>[];
+    userSupplies?: { reserve: { id: string } }[];
+    userBorrows?: { reserve: { id: string } }[];
+  } };
   if (body.errors?.length) throw new Error(`aave v4 gql: ${JSON.stringify(body.errors).slice(0, 300)}`);
 
-  const bySpoke = new Map<string, V4Rates>();
+  const bySpoke = new Map<string, V4Rates[]>();
+  const add = (key: string, row: V4Rates) => bySpoke.set(key, [...(bySpoke.get(key) ?? []), row]);
   for (const r of body.data?.reserves ?? []) {
+    if (r?.spoke?.chain?.chainId !== chainId) continue;
     const spoke: unknown = r?.spoke?.address;
     const under: unknown = r?.asset?.underlying?.address;
     if (typeof spoke !== 'string' || typeof under !== 'string') continue;
@@ -88,11 +120,13 @@ async function fetchV4(chainId: number, signal: AbortSignal): Promise<V4Snapshot
     let borrowNonAnnualizable = false;
     for (const rw of rewards ?? []) {
       if (rw?.__typename === 'MerklSupplyReward') {
-        const value = frac(rw?.extraApy?.value);
+        if (user && rw.userEligible === false) continue;
+        const value = user && rw.userEligible === true ? frac(rw?.userEffectiveExtraApy?.value) : null;
         if (value !== null) supplyNumericSeen = true;
         sr = value === null || sr === null ? null : sr + value;
       } else if (rw?.__typename === 'MerklBorrowReward') {
-        const value = frac(rw?.discountApy?.value);
+        if (user && rw.userEligible === false) continue;
+        const value = user && rw.userEligible === true ? frac(rw?.userEffectiveDiscountApy?.value) : null;
         if (value !== null) borrowNumericSeen = true;
         br = value === null || br === null ? null : br + value;
       } else {
@@ -130,8 +164,10 @@ async function fetchV4(chainId: number, signal: AbortSignal): Promise<V4Snapshot
     const hubSupplied = amount(hubSummary.supplied?.amount?.value);
     const hubAvailable = amount(hubSummary.availableLiquidity?.amount?.value);
     const row: V4Rates = {
+      reserveId: r.id,
       s: frac(sum.supplyApy?.value),
-      b: frac(sum.borrowApy?.value),
+      // A market quote omits the position's risk premium. A user request must use userState.
+      b: frac(user ? r?.userState?.borrowApy?.value : sum.borrowApy?.value),
       sr,
       br,
       ss,
@@ -145,26 +181,39 @@ async function fetchV4(chainId: number, signal: AbortSignal): Promise<V4Snapshot
             source: 'aave-v4-api',
           },
     };
-    bySpoke.set(`${chainId}:${spoke.toLowerCase()}:${under.toLowerCase()}`, row);
+    add(`${chainId}:${spoke.toLowerCase()}:${under.toLowerCase()}`, row);
+    const native = r.spoke.chain.nativeAsset;
+    const nativeAddress = native?.__typename === 'SharedBalanceNativeAsset'
+      ? native.erc20Address : native?.wrappedNativeTokenAddress;
+    if (under.toLowerCase() === nativeAddress?.toLowerCase()) {
+      for (const alias of aaveNativeAliases(chainId)) {
+        add(`${chainId}:${spoke.toLowerCase()}:${alias}`, row);
+      }
+    }
   }
   if (bySpoke.size === 0) throw new Error('aave v4 returned no reserves');
-  const snapshot = { at: Date.now(), bySpoke };
-  setTtlLru(cache, chainId, snapshot, 128, () => TTL_MS);
+  const snapshot: V4Snapshot = {
+    at: Date.now(), bySpoke,
+    supplied: new Set(body.data?.userSupplies?.map((item) => item.reserve.id)),
+    borrowed: new Set(body.data?.userBorrows?.map((item) => item.reserve.id)),
+  };
+  setTtlLru(cache, aaveRequestKey(chainId, user), snapshot, 64, () => TTL_MS);
   return snapshot;
 }
 
-async function loadV4(chainId: number, signal?: AbortSignal): Promise<V4Snapshot> {
-  const hit = getTtlLru(cache, chainId, () => TTL_MS);
+async function loadV4(chainId: number, user?: string, signal?: AbortSignal): Promise<V4Snapshot> {
+  const key = aaveRequestKey(chainId, user);
+  const hit = getTtlLru(cache, key, () => TTL_MS);
   if (hit) return hit;
-  let load = coldLoads.get(chainId);
+  let load = coldLoads.get(key);
   if (!load) {
     load = new SharedAbortableLoad<V4Snapshot>();
-    coldLoads.set(chainId, load);
+    coldLoads.set(key, load);
   }
   try {
-    return await load.run((loadSignal) => fetchV4(chainId, loadSignal), signal);
+    return await load.run((loadSignal) => fetchV4(chainId, user, loadSignal), signal);
   } finally {
-    if (!load.isActive() && coldLoads.get(chainId) === load) coldLoads.delete(chainId);
+    if (!load.isActive() && coldLoads.get(key) === load) coldLoads.delete(key);
   }
 }
 
@@ -178,25 +227,27 @@ export const aave4Adapter: ProtocolAdapter = {
   name: 'aave-v4',
   matches: (id) => /^([a-z0-9]+_)?aave4$/.test(id),
   async resolve(queries: LegQuery[], signal?: AbortSignal): Promise<(LegRates | null)[]> {
-    const snapshots = new Map<number, V4Snapshot | null>();
-    const chainIds = [...new Set(queries.map((q) => q.chainId))];
-    await Promise.all(chainIds.map(async (chainId) => {
-      if (!Number.isSafeInteger(chainId) || chainId <= 0) return;
-      const snapshot = await loadV4(chainId, signal).catch((e) => {
+    const snapshots = new Map<string, V4Snapshot | null>();
+    const groups = new Map(queries.map((q) => [aaveRequestKey(q.chainId, q.userAddress), q]));
+    await Promise.all([...groups].map(async ([key, { chainId, userAddress }]) => {
+      const snapshot = await loadV4(chainId, userAddress, signal).catch((e) => {
         if (signal?.aborted) throw e;
         console.warn('[APY Lens] aave v4 failed:', e);
         return null;
       });
-      snapshots.set(chainId, snapshot);
+      snapshots.set(key, snapshot);
     }));
     return queries.map((q) => {
-      const c = snapshots.get(q.chainId);
+      const c = snapshots.get(aaveRequestKey(q.chainId, q.userAddress));
       if (!c) return null;
       const identity = `${q.itemPoolId ?? ''} ${q.positionKey ?? ''}`.toLowerCase();
       const spoke = identity.match(/0x[0-9a-f]{40}/)?.[0];
       if (!spoke) return null;
-      const r = c.bySpoke.get(`${q.chainId}:${spoke}:${q.address}`);
-      if (!r) return null;
+      const candidates = c.bySpoke.get(`${q.chainId}:${spoke}:${q.address.toLowerCase()}`) ?? [];
+      const active = q.leg === 'supply' ? c.supplied : c.borrowed;
+      const matched = candidates.length > 1 ? candidates.filter((row) => active.has(row.reserveId)) : candidates;
+      if (matched.length !== 1) return null;
+      const r = matched[0];
       if (q.leg === 'supply') {
         return {
           baseApy: r.s,

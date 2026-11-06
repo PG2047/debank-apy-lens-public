@@ -81,7 +81,7 @@ test('Aave V4 isolates same-address spokes across chains, cache, and chain-local
     requests.push(cid);
     if (cid === 196) return new Response('{"errors":[{"message":"unavailable"}]}');
     return new Response(JSON.stringify({ data: { reserves: [{
-      spoke: { address: MARKET }, asset: { underlying: { address: ASSET } },
+      spoke: { address: MARKET, chain: { chainId: cid } }, asset: { underlying: { address: ASSET } },
       summary: { supplyApy: { value: cid === 1 ? '0.01' : '0.05' }, rewards: [] },
     }] } }));
   };

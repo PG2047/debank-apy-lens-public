@@ -2,14 +2,14 @@
 
 [English](PROTOCOLS.md) · [中文](PROTOCOLS.zh-CN.md)
 
-版本：0.6.0。依据：`utils/adapters/registry.ts`、各 adapter 和部署目录。本文说明代码能力，不代表每个实时市场已验证可用。
+版本：0.7.0。依据：`utils/adapters/registry.ts`、各 adapter 和部署目录。本文说明代码能力，不代表每个实时市场已验证可用。
 
 **19 条利率路线 + 3 条 LP 路线。** 路线数量不等于协议品牌数量。链识别目录含 73 条 EVM 链（2026-09-21 快照），不代表每个协议在每条链均受支持。
 
 | 路线 ID | 协议 / 产品 | 类型 |
 |---|---|---|
 | `aave-v3` | Aave V3 | 利率 |
-| `aave-v4` | Aave V4 | 利率 |
+| `aave-v4` | Aave V4 / Aave Pro | 利率 |
 | `morpho` | Morpho | 利率 |
 | `lista` | Lista DAO / Moolah | 利率 |
 | `spark` | Spark | 利率 |
@@ -33,6 +33,8 @@
 
 ## 逐项支持范围
 
+Aave 逐主网、逐市场范围见 [V3 / V4 / Aave Pro 覆盖表](AAVE_NETWORKS.zh-CN.md)。
+
 ### Aave V3 — `aave-v3`
 
 - **支持产品:** 存款、借款及循环贷仓位。
@@ -40,10 +42,10 @@
 - **奖励 / 显示内容:** 官方 reserve incentives；数字 APR/APY 与积分、资格分开显示。
 - **边界:** 不支持 Aave V2。只有完整且成功的奖励响应才能证明奖励为零。
 
-### Aave V4 — `aave-v4`
+### Aave V4 / Aave Pro — `aave-v4`
 
 - **支持产品:** 精确 spoke 与 reserve 下的存借仓位。
-- **基础数据:** Aave V4 GraphQL spoke reserve 数据；各链独立路由，同地址的不同链 spoke 不混用。
+- **基础数据:** Aave V4 GraphQL spoke reserve 数据；用户借款包含风险溢价；各链/钱包独立，同一 Spoke 的多 Hub 储备按用户实际存借腿区分。
 - **奖励 / 显示内容:** 官方 reward union；积分与不可年化权益独立披露。
 - **边界:** 流动性统计采用 Hub 级数据，不用 spoke 存款减借款代替。缺少 spoke 身份或来源时保持未知。
 

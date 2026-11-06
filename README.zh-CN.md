@@ -27,16 +27,18 @@
 计算规则见 [数据来源](docs/DATA_SOURCES.zh-CN.md)，完整链表见 [部署目录](docs/EVM_DEPLOYMENTS.zh-CN.md)。
 新增 Pendle PT、Curve 池基础收益、Beefy、Yearn、Lido、Rocket Pool 和 ether.fi，具体产品边界见协议指南。其他主流协议见[覆盖缺口清单](docs/PROTOCOL_GAPS.zh-CN.md)。
 
+Aave V3 已覆盖官方当前全部 21 条 EVM 主网；Aave V4 / Aave Pro 覆盖 Ethereum、Arc、Base、Avalanche。详见 [Aave 全部网络与市场清单](docs/AAVE_NETWORKS.zh-CN.md)。
+
 ## 在另一台电脑安装
 
 安装 Release ZIP 不需要 Node.js 或编译。
 
 1. 从 [最新 Release](https://github.com/PG2047/debank-apy-lens-public/releases/latest)
-   下载 `debank-apy-lens-0.6.0-chrome.zip`，不要下载 GitHub 自动生成的 Source code 包。
+   下载 `debank-apy-lens-0.7.0-chrome.zip`，不要下载 GitHub 自动生成的 Source code 包。
 2. 解压到长期保留的文件夹。
 3. 桌面 Chrome 打开 `chrome://extensions`，开启「开发者模式」。
 4. 点「加载已解压的扩展程序」，选择直接包含 `manifest.json` 的文件夹。
-5. 关闭并重新打开 DeBank 标签页，确认页面状态条显示 `v0.6.0`。
+5. 关闭并重新打开 DeBank 标签页，确认页面状态条显示 `v0.7.0`。
 
 不要删除解压目录。更新时用新版替换该目录中的文件，在扩展卡片点「重新加载」，再关闭并重新打开 DeBank 标签页。
 此安装方式需要手动更新；以页面状态条中的版本号判断实际运行版本。

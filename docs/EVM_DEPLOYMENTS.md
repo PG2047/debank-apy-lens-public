@@ -1,4 +1,4 @@
-# EVM deployment coverage — v0.6.0
+# EVM deployment coverage — v0.7.0
 
 [English](EVM_DEPLOYMENTS.md) · [中文](EVM_DEPLOYMENTS.zh-CN.md)
 
@@ -10,8 +10,8 @@ does not prove support for every protocol on that chain.
 
 | Route | Coverage rule |
 |---|---|
-| Aave V3 | Exact chain and market; the snapshot's 21 official mainnets can be routed. |
-| Aave V4 | Per-chain GraphQL and caches; same-address spokes on different chains remain separate. |
+| Aave V3 | 21 current official mainnets and 24 markets, verified 2026-11-06; native assets and wallet/chain isolation. |
+| Aave V4 / Pro | Ethereum, Arc, Base, Avalanche; 24 spokes. User premiums, effective rewards, and multi-hub identity. See [full Aave scope](AAVE_NETWORKS.md). |
 | Morpho | `userByAddress` with chain ID; the snapshot's 14 official mainnets can be routed, including World Chain, Tempo, and Arc. |
 | Dolomite, Compound V3, Venus, Fluid | Official sources by chain and exact market/container identity; no TVL shortlist. |
 | Lista | Official chain names use the common directory; wallet markets are verified onchain. |
@@ -62,7 +62,7 @@ against official addresses, not symbols.
 This is a dated snapshot. Offline tests check routing, permissions, and decoding;
 they do not prove that all current endpoints work. Public RPC limits or missing
 historical state can leave data unknown. Reload the extension, reopen DeBank,
-and check the `v0.6.0` status marker for live verification.
+and check the `v0.7.0` status marker for live verification.
 
 ## Full chain directory
 

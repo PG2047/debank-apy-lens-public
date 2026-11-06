@@ -1,6 +1,6 @@
 {
   "name": "debank-apy-lens",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -12,7 +12,8 @@
     "test": "node --import tsx --test tests/*.test.ts",
     "postinstall": "wxt prepare",
     "sync:deployments": "node scripts/sync-deployments.mjs",
-    "check:deployments": "node scripts/sync-deployments.mjs --check"
+    "check:deployments": "node scripts/sync-deployments.mjs --check",
+    "check:aave": "node --import tsx scripts/check-aave-mainnets.ts"
   },
   "devDependencies": {
     "tsx": "^4.19.0",

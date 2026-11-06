@@ -1,0 +1,426 @@
+{
+  "observedAt": "2026-11-06",
+  "sources": {
+    "v3": "https://api.v3.aave.com/graphql",
+    "v4": "https://api.v4.aave.com/graphql"
+  },
+  "v3": [
+    {
+      "chainId": 1,
+      "name": "Ethereum",
+      "debankId": "eth",
+      "markets": [
+        {
+          "name": "AaveV3EthereumEtherFi",
+          "address": "0x0aa97c284e98396202b6a04024f5e2c65026f3c0",
+          "reserves": 4
+        },
+        {
+          "name": "AaveV3EthereumLido",
+          "address": "0x4e033931ad43597d96d6bcc25c280717730b58b1",
+          "reserves": 9
+        },
+        {
+          "name": "AaveV3Ethereum",
+          "address": "0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2",
+          "reserves": 67
+        },
+        {
+          "name": "AaveV3EthereumHorizon",
+          "address": "0xae05cd22df81871bc7cc2a04becfb516bfe332c8",
+          "reserves": 11
+        }
+      ]
+    },
+    {
+      "chainId": 10,
+      "name": "Optimism",
+      "debankId": "op",
+      "markets": [
+        {
+          "name": "AaveV3Optimism",
+          "address": "0x794a61358d6845594f94dc1db02a252b5b4814ad",
+          "reserves": 14
+        }
+      ]
+    },
+    {
+      "chainId": 56,
+      "name": "BSC",
+      "debankId": "bsc",
+      "markets": [
+        {
+          "name": "AaveV3BNB",
+          "address": "0x6807dc923806fe8fd134338eabca509979a7e0cb",
+          "reserves": 8
+        }
+      ]
+    },
+    {
+      "chainId": 100,
+      "name": "Gnosis",
+      "debankId": "xdai",
+      "markets": [
+        {
+          "name": "AaveV3Gnosis",
+          "address": "0xb50201558b00496a145fe76f7424749556e326d8",
+          "reserves": 9
+        }
+      ]
+    },
+    {
+      "chainId": 137,
+      "name": "Polygon",
+      "debankId": "matic",
+      "markets": [
+        {
+          "name": "AaveV3Polygon",
+          "address": "0x794a61358d6845594f94dc1db02a252b5b4814ad",
+          "reserves": 21
+        }
+      ]
+    },
+    {
+      "chainId": 143,
+      "name": "Monad",
+      "debankId": "monad",
+      "markets": [
+        {
+          "name": "AaveV3Monad",
+          "address": "0x69a5f9ad4f96ebf0a0c792dd42a01cc5c0102fef",
+          "reserves": 14
+        }
+      ]
+    },
+    {
+      "chainId": 146,
+      "name": "Sonic",
+      "debankId": "sonic",
+      "markets": [
+        {
+          "name": "AaveV3Sonic",
+          "address": "0x5362dbb1e601abf3a4c14c22ffeda64042e5eaa3",
+          "reserves": 4
+        }
+      ]
+    },
+    {
+      "chainId": 196,
+      "name": "X Layer",
+      "debankId": "xlayer",
+      "markets": [
+        {
+          "name": "AaveV3XLayer",
+          "address": "0xe3f3caefdd7180f884c01e57f65df979af84f116",
+          "reserves": 13
+        }
+      ]
+    },
+    {
+      "chainId": 324,
+      "name": "zkSync",
+      "debankId": "era",
+      "markets": [
+        {
+          "name": "AaveV3ZkSync",
+          "address": "0x78e30497a3c7527d953c6b1e3541b021a98ac43c",
+          "reserves": 8
+        }
+      ]
+    },
+    {
+      "chainId": 1088,
+      "name": "Metis",
+      "debankId": "metis",
+      "markets": [
+        {
+          "name": "AaveV3Metis",
+          "address": "0x90df02551bb792286e8d4f13e0e357b4bf1d6a57",
+          "reserves": 5
+        }
+      ]
+    },
+    {
+      "chainId": 1868,
+      "name": "Soneium",
+      "debankId": "soneium",
+      "markets": [
+        {
+          "name": "AaveV3Soneium",
+          "address": "0xdd3d7a7d03d9fd9ef45f3e587287922ef65ca38b",
+          "reserves": 3
+        }
+      ]
+    },
+    {
+      "chainId": 4326,
+      "name": "MegaETH",
+      "debankId": "megaeth",
+      "markets": [
+        {
+          "name": "AaveV3MegaETH",
+          "address": "0x7e324abc5de01d112afc03a584966ff199741c28",
+          "reserves": 9
+        }
+      ]
+    },
+    {
+      "chainId": 5000,
+      "name": "Mantle",
+      "debankId": "mnt",
+      "markets": [
+        {
+          "name": "AaveV3Mantle",
+          "address": "0x458f293454fe0d67ec0655f3672301301dd51422",
+          "reserves": 10
+        }
+      ]
+    },
+    {
+      "chainId": 8453,
+      "name": "Base",
+      "debankId": "base",
+      "markets": [
+        {
+          "name": "AaveV3Base",
+          "address": "0xa238dd80c259a72e81d7e4664a9801593f98d1c5",
+          "reserves": 15
+        }
+      ]
+    },
+    {
+      "chainId": 9745,
+      "name": "Plasma",
+      "debankId": "plasma",
+      "markets": [
+        {
+          "name": "AaveV3Plasma",
+          "address": "0x925a2a7214ed92428b5b1b090f80b25700095e12",
+          "reserves": 18
+        }
+      ]
+    },
+    {
+      "chainId": 42161,
+      "name": "Arbitrum",
+      "debankId": "arb",
+      "markets": [
+        {
+          "name": "AaveV3Arbitrum",
+          "address": "0x794a61358d6845594f94dc1db02a252b5b4814ad",
+          "reserves": 20
+        }
+      ]
+    },
+    {
+      "chainId": 42220,
+      "name": "Celo",
+      "debankId": "celo",
+      "markets": [
+        {
+          "name": "AaveV3Celo",
+          "address": "0x3e59a31363e2ad014dcbc521c4a0d5757d9f3402",
+          "reserves": 6
+        }
+      ]
+    },
+    {
+      "chainId": 43114,
+      "name": "Avalanche",
+      "debankId": "avax",
+      "markets": [
+        {
+          "name": "AaveV3Avalanche",
+          "address": "0x794a61358d6845594f94dc1db02a252b5b4814ad",
+          "reserves": 18
+        }
+      ]
+    },
+    {
+      "chainId": 57073,
+      "name": "Ink",
+      "debankId": "ink",
+      "markets": [
+        {
+          "name": "AaveV3Ink",
+          "address": "0x2816cf15f6d2a220e789aa011d5ee4eb6c47feba",
+          "reserves": 14
+        }
+      ]
+    },
+    {
+      "chainId": 59144,
+      "name": "Linea",
+      "debankId": "linea",
+      "markets": [
+        {
+          "name": "AaveV3Linea",
+          "address": "0xc47b8c00b0f69a36fa203ffeac0334874574a8ac",
+          "reserves": 9
+        }
+      ]
+    },
+    {
+      "chainId": 534352,
+      "name": "Scroll",
+      "debankId": "scrl",
+      "markets": [
+        {
+          "name": "AaveV3Scroll",
+          "address": "0x11fcfe756c05ad438e312a7fd934381537d3cffe",
+          "reserves": 5
+        }
+      ]
+    }
+  ],
+  "v4": [
+    {
+      "chainId": 1,
+      "name": "Ethereum",
+      "debankId": "eth",
+      "spokes": [
+        {
+          "name": "Kelp",
+          "address": "0x3131fe68c4722e726fe6b2819ed68e514395b9a4",
+          "reserves": 2
+        },
+        {
+          "name": "Ethena Correlated",
+          "address": "0x58131e79531cab1d52301228d1f7b842f26b9649",
+          "reserves": 4
+        },
+        {
+          "name": "Gold",
+          "address": "0x65407b940966954b23dfa3caa5c0702bb42984dc",
+          "reserves": 8
+        },
+        {
+          "name": "Maple SyrupUSDG",
+          "address": "0x774b9655413c34809c1f1b16b654465a89ebe989",
+          "reserves": 4
+        },
+        {
+          "name": "Lombard",
+          "address": "0x7ec68b5695e803e98a21a9a05d744f28b0a7753d",
+          "reserves": 3
+        },
+        {
+          "name": "Main",
+          "address": "0x94e7a5dcbe816e498b89ab752661904e2f56c485",
+          "reserves": 14
+        },
+        {
+          "name": "USDG Pendle",
+          "address": "0x956d8e0a89cfa3744428c4641b5a53b56167a7f9",
+          "reserves": 5
+        },
+        {
+          "name": "Bluechip",
+          "address": "0x973a023a77420ba610f06b3858ad991df6d85a08",
+          "reserves": 12
+        },
+        {
+          "name": "RLUSD Yield",
+          "address": "0x9ebf0c19bf7dfe859820cc09e846114b53814e52",
+          "reserves": 5
+        },
+        {
+          "name": "Bluechip",
+          "address": "0xa37e7cdc557f3c7f745fb3f337b6439979662c46",
+          "reserves": 4
+        },
+        {
+          "name": "PAXG Gold",
+          "address": "0xad75ce6354f87f3135ce10621d385d8d1e2562c2",
+          "reserves": 2
+        },
+        {
+          "name": "Ethena Ecosystem",
+          "address": "0xba1b3d55d249692b669a164024a838309b7508af",
+          "reserves": 10
+        },
+        {
+          "name": "OUSD Yield",
+          "address": "0xbb97b61ad6747d337e5805f2d159d275bb1f0828",
+          "reserves": 5
+        },
+        {
+          "name": "Etherfi",
+          "address": "0xbf10bdfe177de0336afd7fccf80a904e15386219",
+          "reserves": 2
+        },
+        {
+          "name": "Forex",
+          "address": "0xd8b93635b8c6d0ff98cbe90b5988e3f2d1cd9da1",
+          "reserves": 7
+        },
+        {
+          "name": "Lido",
+          "address": "0xe1900480ac69f0b296841cd01cc37546d92f35cd",
+          "reserves": 2
+        }
+      ]
+    },
+    {
+      "chainId": 5042,
+      "name": "Arc",
+      "debankId": "arc",
+      "spokes": [
+        {
+          "name": "Maple SyrupUSDC",
+          "address": "0x18dde098d25722c14e09842a6fa7db6aafc395a2",
+          "reserves": 2
+        },
+        {
+          "name": "Forex",
+          "address": "0x4164ebcaf74670aa74c8d4f59de6157c0780f1bb",
+          "reserves": 2
+        },
+        {
+          "name": "Main",
+          "address": "0xb843bdc3a87a05e77e07df9fe48928b3a34b134d",
+          "reserves": 4
+        }
+      ]
+    },
+    {
+      "chainId": 8453,
+      "name": "Base",
+      "debankId": "base",
+      "spokes": [
+        {
+          "name": "Coinbase Stocks",
+          "address": "0x17905db0e4a3514467539956c084180616ae7b8d",
+          "reserves": 9
+        }
+      ]
+    },
+    {
+      "chainId": 43114,
+      "name": "Avalanche",
+      "debankId": "avax",
+      "spokes": [
+        {
+          "name": "AVAX Correlated",
+          "address": "0x3b517594277c67307cf2d7cbe6fe1d4399b68c41",
+          "reserves": 2
+        },
+        {
+          "name": "Main",
+          "address": "0x435272ceff93a1e657e8abfdf0a13e95900a3a56",
+          "reserves": 6
+        },
+        {
+          "name": "Forex",
+          "address": "0x6a37776b5e026dbdf043b4f933c323c84dd1b514",
+          "reserves": 3
+        },
+        {
+          "name": "Ethena Ecosystem",
+          "address": "0xaf22446124e566e54845f65b722e4dcbf12b650a",
+          "reserves": 3
+        }
+      ]
+    }
+  ]
+}

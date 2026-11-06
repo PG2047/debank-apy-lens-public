@@ -1,4 +1,4 @@
-# EVM 部署覆盖（v0.6.0）
+# EVM 部署覆盖（v0.7.0）
 
 [English](EVM_DEPLOYMENTS.md) · [中文](EVM_DEPLOYMENTS.zh-CN.md)
 
@@ -10,8 +10,8 @@ X Layer 的官方 ID 是 `xlayer`，EVM chainId 是 `196`。旧版没有该映�
 
 | 路线 | 当前接入方式 |
 |---|---|
-| Aave V3 | 官方 GraphQL 按实际 chainId 查询；当日官方目录的 21 条主网全部能路由 |
-| Aave V4 | 每链独立 GraphQL 查询、LRU 缓存和可取消共享加载；去除仅 Ethereum 限制；同地址跨链隔离 |
+| Aave V3 | 2026-11-06 核对的全部 21 条官方当前主网、24 个市场；支持原生币及钱包/链隔离 |
+| Aave V4 / Pro | Ethereum、Arc、Base、Avalanche，24 个 Spoke；用户溢价、净额奖励与多 Hub 身份。见 [Aave 完整范围](AAVE_NETWORKS.zh-CN.md) |
 | Morpho | 官方 userByAddress 按 chainId 查询；当日官方目录 14 条主网全部能路由，包括 World Chain、Tempo、Arc |
 | Dolomite、Compound V3、Venus、Fluid | 继续用官方 API 按 chainId 和精确容器身份匹配，不另设主网名单 |
 | Lista | 官方市场目录的链名由统一链目录解析，不再只识别 Ethereum/BNB；链上复核钱包实际市场 |
@@ -62,7 +62,7 @@ Pancake 和固定 share-token 产品从各自官方地址页核对后更新，�
 
 链与合约目录是 2026-09-21 的快照。离线测试验证路由、权限与解码逻辑，不能证明每个公共 RPC 当前可用。
 公开版不含个人 API Key。公共 RPC 的限流或历史查询限制会使部分数据保持未知。
-构建后在普通 Chrome 标签页重载扩展并重新打开 DeBank，确认状态条显示 `v0.6.0`。
+构建后在普通 Chrome 标签页重载扩展并重新打开 DeBank，确认状态条显示 `v0.7.0`。
 
 ## 完整链目录
 

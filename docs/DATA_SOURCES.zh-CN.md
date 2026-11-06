@@ -1,8 +1,15 @@
-# 数据源、奖励覆盖与显示契约（v1.11 · 2026-09-25）
+# 数据源、奖励覆盖与显示契约（v0.7.0 · 2026-11-06）
 
 [English](DATA_SOURCES.md) · [中文](DATA_SOURCES.zh-CN.md)
 
 本文件与公开仓库的代码、测试共同定义当前行为。完整产品范围见 [协议指南](PROTOCOLS.zh-CN.md)。
+
+## Aave 更新 — v0.7.0
+
+[Aave 全部主网与市场范围](AAVE_NETWORKS.zh-CN.md)：V3 为 21 条当前 EVM 主网，V4/Pro 为 4 条。
+两个适配器均按钱包和链隔离缓存/共享加载，原生币别名使用官方资产信息。
+V4 用户借款使用包含风险溢价的 `userState.borrowApy`；Merkl 使用资格与净额扣减后的用户有效 APY。
+同 Spoke、同资产的多个 Hub 储备按用户实际存借 reserve ID 区分；多个候选都有持仓时保持未知。
 
 ## EVM 部署范围
 
@@ -166,7 +173,7 @@ Sky 的 USDS 底层同时存在 savings share token 与多个 Ecosystem Rewards 
 - DeBank parser 最多处理 128 projects、单 project 32 items、全局 256 items、单 item 32 principal/reward legs、全局各 512 legs；不透明 `position_index` 最多 256 字符，LP 路径另行强制纯十进制 uint256（最多 78 位且 `<2^256`）。adapter card、LP position 与 RPC batch 另有 128/32/256 上限。RPC response 行数不得超过 call 数，id 必须唯一且位于 batch 范围内。任何截断逐 item、protocol、portfolio 传播为 incomplete/unknown。
 - 异步响应绑定当前地址、跨 fetch/XHR 的 request-start sequence 与 enrich request generation；旧请求即使更晚完成也不能覆盖或清除新结果，导航后迟到结果同样丢弃。
 - Portfolio 头部状态栏只重跑最近一次经过安全复制和地址校验的 enrichment payload；它不重载页面、不主动请求 DeBank。MAIN interceptor 另按 request-time 地址保留最多 8 份同文档有界快照，bridge 在启动/SPA/BFCache 恢复时以版本化同地址消息请求重放，使用新 capture sequence 且禁止跨地址，从而消除响应早于 listener 的永久等待竞态。停止会取消当前 request 并递增 generation，刷新失败保留旧渲染结果；状态节点使用 Shadow DOM，页面重绘后可自愈。partial 不再显示笼统“部分数据”，而显示 `N项缺口`；每条 hover 明细必须包含协议名称、链和未匹配资产腿，同一协议的基础/奖励问题合并为一项，全部 Merkl 失败链合并为一项；不把未支持协议、净资产低于 $100 的独立仓位/协议或任何 DEX 的手续费 APY、外部激励 APY 计作运行失败。
-- DeFiLlama/Lista/Aave V4 的共享冷加载按订阅者独立取消；一个 tab 离开不会误杀其他 tab，最后一个订阅者离开才中止底层请求。Aave V4 的成功快照缓存 5 分钟，冷启动期间多个 tab 只共享一次官方 GraphQL 请求。LP 区间缓存为 120 秒 TTL、最多 128 项 LRU。Sky farm inventory/state/APR 成功缓存 5 分钟、错误缓存 30 秒，farm 上限 64。
+- DeFiLlama/Lista/Aave V3/V4 的共享冷加载按订阅者独立取消；一个 tab 离开不会误杀其他 tab，最后一个订阅者离开才中止底层请求。Aave V4 的成功快照缓存 5 分钟，冷启动期间多个 tab 只共享一次官方 GraphQL 请求。LP 区间缓存为 120 秒 TTL、最多 128 项 LRU。Sky farm inventory/state/APR 成功缓存 5 分钟、错误缓存 30 秒，farm 上限 64。
 - 同一次 enrichment 的全部 Sky cards 合并为一次 adapter batch，最多处理 128 条 Sky query、32 个 page-supplied exact farm；Chainlog 每链最多发现 64 个 farm。每条 query 的非取消错误独立退化为 `unknown`，不得清空其他 Sky card。inventory、farm state、wallet balance、BA APR 与 savings state 使用跨 card 的 subscriber-aware single-flight；一个 tab 取消不会中止其他订阅者，所有订阅者离开后才取消底层工作，旧 generation 也不能删除正在运行的新 generation。
 - 市场级请求不发送余额。Aave 与 Morpho 仅在用户级资格/仓位查询需要时发送当前公开钱包地址；Sky 仅在 DeBank 缺少 exact farm id 时，把公开钱包地址作为链上 `balanceOf` 的 calldata 发给所选 Ethereum RPC，不发送给 Chainlog 或 BA。
 - 钱包、仓位图和 API 响应不写入持久缓存或日志。

@@ -3,6 +3,8 @@
 
 import { aaveAdapter } from './aave';
 import { aave4Adapter } from './aave4';
+import aaveMarkets from '../aave-markets.json';
+import { aaveMarketAddress } from './aave-identity';
 import { morphoAdapter } from './morpho';
 import { listaAdapter } from './lista';
 import { skyAdapter } from './sky';
@@ -305,8 +307,27 @@ export const RATE_ROUTES: readonly RegisteredRateRoute[] = registeredRoutes.filt
 export const LP_ROUTES: readonly RegisteredLpRoute[] = registeredRoutes.filter(isLpRoute);
 export const ADAPTERS: ProtocolAdapter[] = RATE_ROUTES.map(({ adapter }) => adapter);
 
-export const findAdapter = (protocolId: string): ProtocolAdapter | undefined =>
-  ADAPTERS.find((adapter) => adapter.matches(protocolId));
+const aaveMarketRoutes = new Map<string, ProtocolAdapter>([
+  ...aaveMarkets.v3.flatMap((chain) => chain.markets.map((market) =>
+    [`${chain.chainId}:${market.address}`, aaveAdapter] as const)),
+  ...aaveMarkets.v4.flatMap((chain) => chain.spokes.map((spoke) =>
+    [`${chain.chainId}:${spoke.address}`, aave4Adapter] as const)),
+]);
+
+export function findAdapter(
+  protocolId: string,
+  identity?: { chainId: number; poolIds: (string | undefined)[] },
+): ProtocolAdapter | undefined {
+  const named = ADAPTERS.find((adapter) => adapter.matches(protocolId));
+  if (!identity) return named;
+  // Aave submarkets can use separate DeBank brands. Route only verified pool
+  // addresses on their exact chain; the adapter still matches every reserve.
+  const routes = new Set(identity.poolIds.map((poolId) =>
+    aaveMarketRoutes.get(`${identity.chainId}:${aaveMarketAddress(poolId)}`),
+  ).filter((adapter) => adapter !== undefined));
+  if (routes.size > 1) return undefined;
+  return routes.size === 1 ? [...routes][0] : named;
+}
 
 export function findLpRoute(protocolId: string): RegisteredLpRoute | undefined {
   const matches = LP_ROUTES.filter((route) => route.matches(protocolId));

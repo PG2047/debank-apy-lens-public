@@ -408,7 +408,7 @@ test('Aave V4 never falls back across spokes for the same asset', async () => {
         data: {
           reserves: [
             {
-              spoke: { address: '0x0000000000000000000000000000000000000011' },
+              spoke: { address: '0x0000000000000000000000000000000000000011', chain: { chainId: 1 } },
               asset: { underlying: { address: ASSET }, summary: { supplied: { amount: { value: '1000' } }, availableLiquidity: { amount: { value: '30' } } } },
               summary: {
                 supplyApy: { value: '0.03' },
@@ -417,24 +417,24 @@ test('Aave V4 never falls back across spokes for the same asset', async () => {
               },
             },
             {
-              spoke: { address: '0x0000000000000000000000000000000000000022' },
+              spoke: { address: '0x0000000000000000000000000000000000000022', chain: { chainId: 1 } },
               asset: { underlying: { address: ASSET }, summary: { supplied: { amount: { value: '1000' } }, availableLiquidity: { amount: { value: '30' } } } },
               summary: {
                 supplyApy: { value: '0.09' },
                 borrowApy: { value: '0.10' },
                 rewards: [
-                  { __typename: 'MerklSupplyReward', extraApy: { value: '0.02' } },
+                  { __typename: 'MerklSupplyReward', userEligible: true, userEffectiveExtraApy: { value: '0.02' } },
                   { __typename: 'SupplyPointsReward', multiplier: 5 },
                 ],
               },
             },
             {
-              spoke: { address: '0x0000000000000000000000000000000000000033' },
+              spoke: { address: '0x0000000000000000000000000000000000000033', chain: { chainId: 1 } },
               asset: { underlying: { address: ASSET }, summary: { supplied: { amount: { value: '1000' } }, availableLiquidity: { amount: { value: '30' } } } },
               summary: {
                 supplyApy: { value: null },
                 borrowApy: { value: null },
-                rewards: [{ __typename: 'MerklSupplyReward', extraApy: { value: '0.015' } }],
+                rewards: [{ __typename: 'MerklSupplyReward', userEligible: true, userEffectiveExtraApy: { value: '0.015' } }],
               },
             },
           ],
@@ -445,10 +445,10 @@ test('Aave V4 never falls back across spokes for the same asset', async () => {
 
   try {
     const [missingIdentity, exact, zero, rewardOnly] = await aave4Adapter.resolve([
-      query(),
-      query({ itemPoolId: '0x0000000000000000000000000000000000000022' }),
-      query({ itemPoolId: '0x0000000000000000000000000000000000000011' }),
-      query({ itemPoolId: '0x0000000000000000000000000000000000000033' }),
+      query({ userAddress: ASSET_2 }),
+      query({ userAddress: ASSET_2, itemPoolId: '0x0000000000000000000000000000000000000022' }),
+      query({ userAddress: ASSET_2, itemPoolId: '0x0000000000000000000000000000000000000011' }),
+      query({ userAddress: ASSET_2, itemPoolId: '0x0000000000000000000000000000000000000033' }),
     ]);
     assert.equal(missingIdentity, null);
     assert.equal(exact?.baseApy, 0.09);
@@ -499,7 +499,7 @@ test('Aave V4 shares one cold load while allowing one subscriber to cancel', asy
         data: {
           reserves: [
             {
-              spoke: { address: '0x0000000000000000000000000000000000000044' },
+              spoke: { address: '0x0000000000000000000000000000000000000044', chain: { chainId: 1 } },
               asset: { underlying: { address: ASSET } },
               summary: { supplyApy: { value: '0.0124' }, borrowApy: { value: '0.02' }, rewards: [] },
             },

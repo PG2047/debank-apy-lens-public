@@ -2,6 +2,20 @@
 
 [English](CHANGELOG.md) · [中文](CHANGELOG.zh-CN.md)
 
+## 0.7.0 — 2026-11-06
+
+- 覆盖 Aave 官方 API 当前全部 EVM 主网：V3 为 21 条网络 / 24 个市场；
+  V4 和 Aave Pro 为 Ethereum、Arc、Base、Avalanche / 24 个 Spoke。
+- 按官方信息映射原生币，包含 Arc 的共享余额 USDC；按已核对的链和合约识别 DeBank 独立子品牌。
+- V3/V4 请求与缓存按钱包、链隔离；V3 增加共享加载和独立取消。
+- V4 使用含用户风险溢价的借款 APY，以及资格和净额扣减后的有效 Merkl APY。
+- 修复同 Spoke、同资产的不同 Hub 储备相互覆盖；每条腿按唯一实际用户储备匹配，多个候选同时有持仓时保持未知。
+- 新增完整中英文网络/市场指南、公开合约快照和 `npm run check:aave`；保留双语界面及不内置个人 Key 的公开包。
+
+验证：262 项测试、类型检查、生产 ZIP 和 bridge bundle 检查通过。
+全部 25 个版本/主网组合的实时响应通过 926 次适配器检查，其中 24 次有歧义的匿名检查正确返回未知。
+用户专属计算和 DeBank 页面路由使用测试样例验证，未进行真实个人钱包或浏览器验收。
+
 ## 0.6.0 — 2026-11-06
 
 - 新增七条利率路线：Pendle V2 PT、Curve 池基础收益、Beefy standard 金库、Yearn V2/V3 金库、Lido、Rocket Pool、ether.fi 基础质押收益。

@@ -11,10 +11,13 @@ import type {
 } from './types';
 import { fetchWithTimeout } from '../http';
 import { getTtlLru, setTtlLru } from '../cache';
+import { SharedAbortableLoad } from '../shared-load';
+import { aaveMarketAddress, aaveNativeAliases, aaveRequestKey } from './aave-identity';
 
 const ENDPOINT = 'https://api.v3.aave.com/graphql';
 const TTL_MS = 5 * 60 * 1000;
 const MAX_WALLET_CACHE_ENTRIES = 64;
+const SOURCE_TIMEOUT_MS = 8_000;
 
 interface ReserveRates {
   supplyApy: number | null;
@@ -29,13 +32,14 @@ interface ReserveRates {
 type AaveRateMap = Map<string, ReserveRates>;
 
 const cache = new Map<string, { at: number; rates: AaveRateMap }>();
+const coldLoads = new Map<string, SharedAbortableLoad<AaveRateMap>>();
 
-const MARKETS_QUERY = `
+export const AAVE_V3_MARKETS_QUERY = `
   query Markets($chainIds: [Int!]!, $user: EvmAddress) {
     markets(request: { chainIds: $chainIds, user: $user }) {
       name
       address
-      chain { chainId }
+      chain { chainId nativeWrappedToken }
       reserves {
         underlyingToken { address }
         supplyInfo { apy { value } total { value } }
@@ -117,29 +121,22 @@ function nonNegative(value: unknown): number | null {
   return Number.isFinite(n) && n >= 0 ? n : null;
 }
 
-function addressFromPoolId(poolId: string | undefined): string | null {
-  return poolId?.toLowerCase().match(/^(0x[0-9a-f]{40})(?::|$)/)?.[1] ?? null;
-}
-
 async function aaveRates(
-  chainIds: number[],
+  chainId: number,
   userAddress?: string,
   signal?: AbortSignal,
 ): Promise<AaveRateMap> {
-  const chainKey = [...chainIds].sort((a, b) => a - b).join(',');
-  const key = `${userAddress ?? 'anonymous'}:${chainKey}`;
-  const hit = getTtlLru(cache, key, () => TTL_MS);
-  if (hit) return hit.rates;
+  const key = aaveRequestKey(chainId, userAddress);
 
   const res = await fetchWithTimeout(ENDPOINT, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({
-      query: MARKETS_QUERY,
-      variables: { chainIds, user: userAddress ?? null },
+      query: AAVE_V3_MARKETS_QUERY,
+      variables: { chainIds: [chainId], user: userAddress?.toLowerCase() ?? null },
     }),
     signal,
-  });
+  }, SOURCE_TIMEOUT_MS);
   if (!res.ok) throw new Error(`aave graphql http ${res.status}`);
   const body = (await res.json()) as {
     errors?: unknown[];
@@ -152,9 +149,9 @@ async function aaveRates(
 
   const rates: AaveRateMap = new Map();
   for (const market of body.data.markets) {
-    const chainId = market?.chain?.chainId;
+    if (market?.chain?.chainId !== chainId) continue;
     const marketAddress = typeof market?.address === 'string' ? market.address.toLowerCase() : null;
-    if (typeof chainId !== 'number' || !marketAddress) continue;
+    if (!marketAddress) continue;
     for (const raw of Array.isArray(market.reserves) ? market.reserves : []) {
       const asset = typeof raw?.underlyingToken?.address === 'string'
         ? raw.underlyingToken.address.toLowerCase()
@@ -171,19 +168,47 @@ async function aaveRates(
         : usdPerToken !== null
           ? { total: totalTokens * usdPerToken, available: availableUsd, unit: 'usd', source: 'aave-api' }
           : { total: totalTokens, available: null, unit: 'token', source: 'aave-api' };
-      rates.set(`${chainId}:${marketAddress}:${asset}`, {
+      const row: ReserveRates = {
         supplyApy: fraction(raw?.supplyInfo?.apy),
         borrowApy: fraction(raw?.borrowInfo?.apy),
         incentives: Array.isArray(raw?.incentives) ? raw.incentives : null,
         marketAddress,
         assetAddress: asset,
         poolStat,
-      });
+      };
+      rates.set(`${chainId}:${marketAddress}:${asset}`, row);
+      if (asset === market.chain.nativeWrappedToken?.toLowerCase()) {
+        for (const alias of aaveNativeAliases(chainId)) {
+          rates.set(`${chainId}:${marketAddress}:${alias}`, row);
+        }
+      }
     }
   }
   if (rates.size === 0) throw new Error('aave graphql returned no usable reserves');
   setTtlLru(cache, key, { at: Date.now(), rates }, MAX_WALLET_CACHE_ENTRIES, () => TTL_MS);
   return rates;
+}
+
+async function loadV3(chainId: number, user?: string, signal?: AbortSignal): Promise<AaveRateMap> {
+  const key = aaveRequestKey(chainId, user);
+  const hit = getTtlLru(cache, key, () => TTL_MS);
+  if (hit) return hit.rates;
+  let load = coldLoads.get(key);
+  if (!load) {
+    load = new SharedAbortableLoad<AaveRateMap>();
+    coldLoads.set(key, load);
+  }
+  try {
+    return await load.run((loadSignal) => aaveRates(chainId, user, loadSignal), signal);
+  } finally {
+    if (!load.isActive() && coldLoads.get(key) === load) coldLoads.delete(key);
+  }
+}
+
+export function __resetAaveCacheForTests(): void {
+  cache.clear();
+  for (const load of coldLoads.values()) load.reset();
+  coldLoads.clear();
 }
 
 function eligible(incentive: Record<string, any>, hasUser: boolean): boolean | null {
@@ -319,33 +344,38 @@ export const aaveAdapter: ProtocolAdapter = {
   async resolve(queries: LegQuery[], signal?: AbortSignal): Promise<(LegRates | null)[]> {
     const groups = new Map<string, LegQuery[]>();
     for (const query of queries) {
-      const key = query.userAddress ?? '';
+      const key = aaveRequestKey(query.chainId, query.userAddress);
       groups.set(key, [...(groups.get(key) ?? []), query]);
     }
     const maps = new Map<string, AaveRateMap | null>();
     await Promise.all(
-      [...groups].map(async ([user, group]) => {
-        const chainIds = [...new Set(group.map((query) => query.chainId))];
-        const rates = await aaveRates(chainIds, user || undefined, signal).catch((error) => {
+      [...groups].map(async ([key, group]) => {
+        const { chainId, userAddress } = group[0];
+        const rates = await loadV3(chainId, userAddress, signal).catch((error) => {
           if (signal?.aborted) throw error;
           console.warn('[APY Lens] aave rates failed:', error);
           return null;
         });
-        maps.set(user, rates);
+        maps.set(key, rates);
       }),
     );
 
     return queries.map((query) => {
-      const market = addressFromPoolId(query.itemPoolId);
+      const market = aaveMarketAddress(query.itemPoolId);
       if (!market) return null;
-      const row = maps.get(query.userAddress ?? '')?.get(
-        `${query.chainId}:${market}:${query.address}`,
-      );
+      const rates = maps.get(aaveRequestKey(query.chainId, query.userAddress));
+      const reserveKey = (address: string) => `${query.chainId}:${market}:${address.toLowerCase()}`;
+      const row = rates?.get(reserveKey(query.address));
       if (!row) return null;
+      const canonicalAsset = (address: string) => rates?.get(reserveKey(address))?.assetAddress ?? address.toLowerCase();
       const baseApy = query.leg === 'supply' ? row.supplyApy : row.borrowApy;
       return {
         baseApy,
-        ...resolveRewards(row, query),
+        ...resolveRewards(row, {
+          ...query,
+          itemSupplyAddresses: query.itemSupplyAddresses?.map(canonicalAsset),
+          itemBorrowAddresses: query.itemBorrowAddresses?.map(canonicalAsset),
+        }),
         ...(query.leg === 'supply' && row.poolStat ? { poolStat: row.poolStat } : {}),
         source: 'aave-v3官方',
       };

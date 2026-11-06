@@ -2,14 +2,14 @@
 
 [English](PROTOCOLS.md) · [中文](PROTOCOLS.zh-CN.md)
 
-Version: 0.6.0. Source: `utils/adapters/registry.ts`, its adapters, and the deployment directory. This is code coverage, not a claim that every live market has been verified.
+Version: 0.7.0. Source: `utils/adapters/registry.ts`, its adapters, and the deployment directory. This is code coverage, not a claim that every live market has been verified.
 
 **19 rate routes + 3 LP routes.** Routes are not protocol brands. The chain directory contains 73 EVM chains (2026-09-21 snapshot); this does not mean that every protocol is supported on every chain.
 
 | Route ID | Protocol / product | Type |
 |---|---|---|
 | `aave-v3` | Aave V3 | Rate |
-| `aave-v4` | Aave V4 | Rate |
+| `aave-v4` | Aave V4 / Aave Pro | Rate |
 | `morpho` | Morpho | Rate |
 | `lista` | Lista DAO / Moolah | Rate |
 | `spark` | Spark | Rate |
@@ -33,6 +33,8 @@ Version: 0.6.0. Source: `utils/adapters/registry.ts`, its adapters, and the depl
 
 ## Scope by route
 
+Complete Aave mainnet and market details: [V3 / V4 / Aave Pro coverage](AAVE_NETWORKS.md).
+
 ### Aave V3 — `aave-v3`
 
 - **Products:** Supply, borrow, and leveraged lending positions.
@@ -40,11 +42,11 @@ Version: 0.6.0. Source: `utils/adapters/registry.ts`, its adapters, and the depl
 - **Rewards / display:** Official reserve incentives; numeric APR/APY stays separate from points or eligibility.
 - **Limits:** Aave V2 is not supported. Only an exhaustive successful reward response can prove zero rewards.
 
-### Aave V4 — `aave-v4`
+### Aave V4 / Aave Pro — `aave-v4`
 
 - **Products:** Supply and borrow positions on an exact spoke and reserve.
-- **Base data:** Aave V4 GraphQL spoke reserve data. Chain IDs are routed separately; same-address spokes on different chains remain separate.
-- **Rewards / display:** Official reward union; points and non-annualizable rights remain separate.
+- **Base data:** Official spoke reserves; user borrowing includes the risk premium. Chains and wallets stay separate. User reserve IDs resolve multi-hub supply/borrow identity.
+- **Rewards / display:** Official user-effective APY includes eligibility and netting. Points and non-annualizable rights remain separate.
 - **Limits:** Liquidity statistics are hub-level, not spoke supply minus spoke borrowing. A missing spoke or source stays unknown.
 
 ### Morpho — `morpho`

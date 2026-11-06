@@ -6,6 +6,13 @@ This document, the public code, and tests define behavior. See
 [protocol coverage](PROTOCOLS.md) for all 19 rate adapters and 3 LP routes, and
 [EVM deployments](EVM_DEPLOYMENTS.md) for the full chain directory.
 
+## Aave update — v0.7.0
+
+[Complete Aave network and market coverage](AAVE_NETWORKS.md): V3 has 21 current EVM mainnets and V4/Pro has four.
+Both adapters isolate cache/shared loads by wallet and chain. Native aliases use official asset metadata.
+V4 user borrowing uses `userState.borrowApy`; Merkl rewards use user-effective APY after eligibility and netting.
+Same-spoke, same-asset reserves across hubs use the active supply/borrow reserve ID. Multiple active candidates stay unknown.
+
 ## EVM routing and invariants
 
 Use DeBank's full bundled EVM directory, not a top-TVL list. Aave V3, Morpho,
@@ -141,14 +148,14 @@ at presentation time; caches retain stable source messages.
 
 - Exact hostnames are listed in `utils/hosts.ts`; no wildcard domains. Defaults use keyless RPCs in `utils/rpc-config.ts`. Custom RPC settings take priority. Historical `eth_call` may need a provider with historical state.
 - Shared HTTP concurrency is 4. Source timeouts start after a queue slot is acquired and include body reading. Default response limits are 2 MiB / 4096 chunks; DeFiLlama `/pools` alone permits 16 MiB.
-- A card has a 10-second deadline propagated to adapters/RPC/body reads. Aave V4 has an 8-second transport budget independent of queue time.
+- A card has a 10-second deadline propagated to adapters/RPC/body reads. Aave V3/V4 have an 8-second transport budget independent of queue time.
 - Aave/Morpho wallet caches hold up to 64 entries; Merkl claimables up to 128. Main-world fetch/XHR capture uses a 2 MiB limit; fetch also limits chunks.
 - The bridge accepts only same-origin, versioned messages for recognized portfolio/history endpoints. Bounded copies allow 2 MiB of characters, 50,000 nodes, 10,000 entries per container, and depth 64.
 - Parsing limits: 128 projects, 32 items per project, 256 items overall, 32 principal/reward legs per item, 512 of each overall. Position indexes are at most 256 characters; LP token IDs must be decimal uint256 strings of at most 78 digits. Card/LP/RPC-batch limits are 128/32/256. RPC IDs must be unique and within the batch; truncation propagates incomplete coverage.
 - Bind results to address, request-start capture sequence, and enrichment generation. Late results cannot overwrite a new address/request. Refresh reuses the last bounded payload and never independently requests DeBank.
 - The main interceptor retains at most 8 bounded per-address snapshots in the same document. Startup/SPA/BFCache replay uses versioned same-address messages with new sequences. Stop cancels work; failed refresh keeps old results. Shadow DOM status nodes recover after page redraws.
 - Gap details identify chain, protocol, and missing asset legs. Deduplicate protocol issues and combine failed Merkl chains. Unsupported protocols, sub-$100 positions, and excluded LP APYs do not count as failures.
-- DeFiLlama/Lista/Aave V4 shared requests cancel per subscriber; abort the underlying request only when all subscribers leave. Aave V4 caches successful data for 5 minutes. LP range cache: 120 seconds, 128 entries.
+- DeFiLlama/Lista/Aave V3/V4 shared requests cancel per subscriber; abort the underlying request only when all subscribers leave. Aave V4 caches successful data for 5 minutes. LP range cache: 120 seconds, 128 entries.
 - Sky success/error cache: 5 minutes / 30 seconds, at most 64 farms. Batch at most 128 queries and 32 page-supplied exact farms; discover at most 64 farms per chain. Identity/state/balance/APR reads share cancellable work; one failed query must not clear other cards.
 - Market requests do not send portfolio balances. Required user queries can send the public wallet/proxy address to APIs or RPC calldata. Wallets, position graphs, and API responses are not persisted.
 

@@ -35,11 +35,13 @@ adapters and three LP routes cover selected products, not every protocol on
 every chain. See [full protocol guide](docs/PROTOCOLS.md), [data sources](docs/DATA_SOURCES.md), and
 [deployment coverage](docs/EVM_DEPLOYMENTS.md). Pendle PT, Curve pool base yield, Beefy, Yearn, Lido, Rocket Pool, and ether.fi are now supported within the product limits in that guide. See the [remaining protocol gaps](docs/PROTOCOL_GAPS.md).
 
+Aave V3 now covers all 21 current official EVM mainnets; Aave V4 / Aave Pro covers Ethereum, Arc, Base, and Avalanche. See the [complete Aave network and market list](docs/AAVE_NETWORKS.md).
+
 ## Install on another computer
 
 No Node.js installation or compilation is needed for a release ZIP.
 
-1. Download `debank-apy-lens-0.6.0-chrome.zip` from
+1. Download `debank-apy-lens-0.7.0-chrome.zip` from
    [Releases](https://github.com/PG2047/debank-apy-lens-public/releases/latest).
    Use the extension ZIP, not GitHub's automatic source-code archive.
 2. Extract it to a folder you will keep.
@@ -47,7 +49,7 @@ No Node.js installation or compilation is needed for a release ZIP.
 4. Select **Load unpacked**, then select the folder that directly contains
    `manifest.json`.
 5. Close any existing DeBank tabs and open a portfolio page again. The extension
-   status bar should show `v0.6.0`.
+   status bar should show `v0.7.0`.
 
 Keep the extracted folder. Unpacked extensions need manual updates. For an
 update, replace the files in that folder with the new release, click **Reload**

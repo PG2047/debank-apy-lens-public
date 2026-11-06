@@ -3,6 +3,24 @@
 [English](CHANGELOG.md) · [中文](CHANGELOG.zh-CN.md)
 
 
+## 0.7.0 — 2026-11-06
+
+- Cover all current official Aave EVM mainnets: V3 on 21 networks / 24 markets;
+  V4 and Aave Pro on Ethereum, Arc, Base, and Avalanche / 24 spokes.
+- Map native assets through official metadata, including Arc shared-balance USDC.
+  Resolve separate DeBank market brands by verified chain and contract identity.
+- Isolate V3/V4 requests and caches by wallet and chain. Add shared V3 loading and independent cancellation.
+- Use V4 user risk premiums and user-effective Merkl APY after eligibility and netting.
+- Fix same-spoke, same-token reserves across different hubs overwriting each other.
+  Select one active user reserve per leg; keep multiple active candidates unknown.
+- Add the complete English/Chinese network and market guide, a public deployment
+  snapshot, and `npm run check:aave`. Existing bilingual UI and keyless packaging remain available.
+
+Validation: 262 tests, type checking, production ZIP, and bridge-bundle checks passed.
+Live responses from all 25 version/mainnet combinations passed 926 adapter checks;
+24 ambiguous anonymous checks correctly stayed unknown. User-specific calculations
+and DeBank page routing use fixtures; this is not a live personal-wallet or browser acceptance test.
+
 ## 0.6.0 — 2026-11-06
 
 - Add seven rate routes: Pendle V2 PT, Curve pool base yield, Beefy standard vaults,

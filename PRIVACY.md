@@ -2,7 +2,7 @@
 
 [English](PRIVACY.md) · [中文](PRIVACY.zh-CN.md)
 
-Applies to the public DeBank APY Lens extension, version 0.6.0.
+Applies to the public DeBank APY Lens extension, version 0.7.0.
 Last updated: 2026-11-06.
 
 ## Data read by the extension
@@ -35,7 +35,7 @@ in [`utils/rpc-config.ts`](utils/rpc-config.ts). The full host permission list i
 Requests can include chain IDs, token and contract addresses, market IDs, NFT
 IDs, and the public wallet or proxy address being viewed. Wallet addresses are
 used where an API needs user positions, eligibility, claimable rewards, or an
-onchain balance/position lookup. RPC providers receive these values as JSON-RPC
+onchain balance/position lookup. Aave V4 receives the viewed public wallet address to get its risk premium, reward eligibility/netting, and active reserve IDs. RPC providers receive these values as JSON-RPC
 parameters. The entire DeBank portfolio response is not sent to a project server.
 
 Each provider can receive your IP address and ordinary connection metadata, and

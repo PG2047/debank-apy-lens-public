@@ -42,10 +42,10 @@ export function getHistoryEntries(address: string): HistoryListResult {
 }
 
 const BRIDGE_MODULE_BUILD_ATTR = 'data-dal-bridge-module-build';
-const BRIDGE_MODULE_BUILD = '0.6.0';
+const BRIDGE_MODULE_BUILD = '0.7.0';
 
 try {
-  console.info('[APY Lens] bridge module build 0.6.0: evaluated');
+  console.info('[APY Lens] bridge module build 0.7.0: evaluated');
 } catch {
   /* module diagnostics must not block content-script definition */
 }

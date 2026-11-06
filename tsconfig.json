@@ -1,0 +1,7 @@
+{
+  "extends": "./.wxt/tsconfig.json",
+  "compilerOptions": {
+    // tests/ 用显式 .ts 后缀导入（node --test + tsx 的 ESM 要求）；noEmit 下允许
+    "allowImportingTsExtensions": true
+  }
+}

@@ -1,0 +1,20 @@
+# 依赖与构建产物
+node_modules/
+.output/
+dist/
+.wxt/
+stats.html
+*.log
+
+# 密钥（三层分离：密钥永不进 git）
+.env
+.env.*
+*.pem
+*.key
+*credentials*
+
+# 系统文件
+.DS_Store
+
+# 会话工具残留
+.claude/

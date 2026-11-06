@@ -1,0 +1,27 @@
+{
+  "name": "debank-apy-lens",
+  "version": "0.5.14",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "build": "wxt build",
+    "verify:bridge-bundle": "node scripts/verify-bridge-bundle.mjs",
+    "zip": "wxt zip",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "postinstall": "wxt prepare",
+    "sync:deployments": "node scripts/sync-deployments.mjs",
+    "check:deployments": "node scripts/sync-deployments.mjs --check"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "wxt": "^0.20.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PG2047/debank-apy-lens-public.git"
+  }
+}

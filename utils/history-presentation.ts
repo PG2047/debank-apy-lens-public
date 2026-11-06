@@ -1,3 +1,4 @@
+import { tr } from './i18n';
 // DeBank history 的纯展示层：只按已确认的资产流向分类、计价与汇总，不推断策略好坏。
 
 import { usd } from './apy';
@@ -102,7 +103,7 @@ function truncateDetail(value: string): string {
 }
 
 function target(entry: HistoryEntry): string {
-  return entry.projectId ?? '未标注协议';
+  return entry.projectId ?? tr("未标注协议");
 }
 
 /** 规则顺序固定:授权 > 领奖(claim 动词) > 加仓/减仓(协议动词) > 换仓(双向) > 纯转账(其他)。
@@ -112,7 +113,7 @@ export function classifyEntry(entry: HistoryEntry): ClassifiedHistoryEntry {
   if (APPROVAL_PATTERN.test(approvalText)) {
     return {
       kind: '授权',
-      detail: truncateDetail(`授权${entry.txName ? ` ${entry.txName}` : ''} → ${target(entry)}`),
+      detail: truncateDetail(tr("授权{0} → {1}", entry.txName ? ` ${entry.txName}` : '', target(entry))),
     };
   }
 
@@ -122,7 +123,7 @@ export function classifyEntry(entry: HistoryEntry): ClassifiedHistoryEntry {
   if (CLAIM_PATTERN.test(normalizedTxName) && hasReceives) {
     return {
       kind: '领奖',
-      detail: truncateDetail(`领取 ${transfersText(entry.receives)} → ${target(entry)}`),
+      detail: truncateDetail(tr("领取 {0} → {1}", transfersText(entry.receives), target(entry))),
     };
   }
   if (DEPOSIT_PATTERN.test(normalizedTxName) && (hasSends || hasReceives)) {
@@ -130,7 +131,7 @@ export function classifyEntry(entry: HistoryEntry): ClassifiedHistoryEntry {
     const legs = hasSends ? entry.sends : entry.receives;
     return {
       kind: '加仓',
-      detail: truncateDetail(`存入 ${transfersText(legs)} → ${target(entry)}`),
+      detail: truncateDetail(tr("存入 {0} → {1}", transfersText(legs), target(entry))),
     };
   }
   if (WITHDRAW_PATTERN.test(normalizedTxName) && (hasSends || hasReceives)) {
@@ -138,14 +139,14 @@ export function classifyEntry(entry: HistoryEntry): ClassifiedHistoryEntry {
     const legs = hasReceives ? entry.receives : entry.sends;
     return {
       kind: '减仓',
-      detail: truncateDetail(`取出 ${transfersText(legs)} ← ${target(entry)}`),
+      detail: truncateDetail(tr("取出 {0} ← {1}", transfersText(legs), target(entry))),
     };
   }
   if (hasSends && hasReceives) {
     return {
       kind: '换仓',
       detail: truncateDetail(
-        `换出 ${transfersText(entry.sends)} → 换入 ${transfersText(entry.receives)} · ${target(entry)}`,
+        tr("换出 {0} → 换入 {1} · {2}", transfersText(entry.sends), transfersText(entry.receives), target(entry)),
       ),
     };
   }
@@ -153,18 +154,18 @@ export function classifyEntry(entry: HistoryEntry): ClassifiedHistoryEntry {
     // 无协议动词的纯流出=普通转账,不冒充减仓
     return {
       kind: '其他',
-      detail: truncateDetail(`转出 ${transfersText(entry.sends)} → ${target(entry)}`),
+      detail: truncateDetail(tr("转出 {0} → {1}", transfersText(entry.sends), target(entry))),
     };
   }
   if (hasReceives) {
     return {
       kind: '其他',
-      detail: truncateDetail(`收到 ${transfersText(entry.receives)} ← ${target(entry)}`),
+      detail: truncateDetail(tr("收到 {0} ← {1}", transfersText(entry.receives), target(entry))),
     };
   }
   return {
     kind: '其他',
-    detail: truncateDetail(`${entry.txName ?? entry.cateId ?? '无资产流动'} · ${target(entry)}`),
+    detail: truncateDetail(`${entry.txName ?? entry.cateId ?? tr("无资产流动")} · ${target(entry)}`),
   };
 }
 
@@ -205,7 +206,7 @@ function taipeiTime(timeAt: number): string {
 
 export function historyDroppedRowsNotice(droppedRows: number): string | null {
   return droppedRows > 0
-    ? `有 ${droppedRows} 条记录未纳入(诈骗过滤/无法解析/超出配额)`
+    ? tr("有 {0} 条记录未纳入(诈骗过滤/无法解析/超出配额)", droppedRows)
     : null;
 }
 

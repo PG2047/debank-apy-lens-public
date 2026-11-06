@@ -1,5 +1,26 @@
 # Changelog
 
+[English](CHANGELOG.md) · [中文](CHANGELOG.zh-CN.md)
+
+
+## 0.5.15 — 2026-11-06
+
+- Add English and Simplified Chinese across settings, yield badges, tooltips,
+  status/error details, liquidity warnings, reward sources, and activity panels.
+- Add a saved language selector: follow browser, Chinese, or English. Switching
+  repaints cached results without fetching rates again.
+- Localize Chrome extension metadata and add matching English/Chinese documentation.
+- Document all 12 rate routes and 3 LP routes, exact products and data sources,
+  reward limits, unsupported products, and the full 73-chain deployment directory.
+- Keep all yield calculations and keyless default RPC behavior unchanged.
+
+Validation: 248 tests, TypeScript checking, and a local Chromium preview covering
+English → Chinese → English, saved preference after reload, layout, and translated
+status/tooltip text. Production packaging and the bridge bundle check passed.
+The ZIP contains both locale catalogs and license versions; a dummy build key,
+configured credential patterns, and personal filesystem paths were absent.
+Browser previews use synthetic data, not live DeBank positions.
+
 ## 0.5.14 — 2026-11-06
 
 - Publish a separate source snapshot under the MIT license.

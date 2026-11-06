@@ -1,14 +1,16 @@
+import { watchLanguage } from '@/utils/language';
 // ISOLATED world 桥接：project_list 交给 service worker 富化并渲染，
 // history/list 严格解析后只写入本模块内存，两个数据流互不影响。
 
 import type { EnrichResult } from '@/utils/overlay';
-import { clearInline, renderInline, scheduleInlineSync } from '@/utils/inline';
+import { clearInline, renderInline, redrawInline, scheduleInlineSync } from '@/utils/inline';
 import { cloneBoundedJson } from '@/utils/input-boundary';
 import { CaptureSequenceCoordinator } from '@/utils/capture-sequence';
 import { HistoryStore, parseHistoryList, type HistoryListResult } from '@/utils/history';
 import { DEBANK_INPUT_LIMITS } from '@/utils/input-limits';
 import {
   destroyStatusBar,
+  redrawStatusBar,
   formatCoverageIssue,
   renderStatusBar,
   type LensCoverage,
@@ -40,10 +42,10 @@ export function getHistoryEntries(address: string): HistoryListResult {
 }
 
 const BRIDGE_MODULE_BUILD_ATTR = 'data-dal-bridge-module-build';
-const BRIDGE_MODULE_BUILD = '0.5.14';
+const BRIDGE_MODULE_BUILD = '0.5.15';
 
 try {
-  console.info('[APY Lens] bridge module build 0.5.14: evaluated');
+  console.info('[APY Lens] bridge module build 0.5.15: evaluated');
 } catch {
   /* module diagnostics must not block content-script definition */
 }
@@ -352,6 +354,7 @@ export default defineContentScript({
     });
 
     setStatus('waiting', '等待当前地址的 DeBank 仓位数据');
+    void watchLanguage(() => { redrawInline(); redrawStatusBar(); }).then((cleanup) => ctx.onInvalidated(cleanup));
     scheduleReplay();
     window.addEventListener('pageshow', requestReplay);
     document.addEventListener('visibilitychange', () => {

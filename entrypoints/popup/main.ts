@@ -1,3 +1,6 @@
+import { tr, getLocale } from '@/utils/i18n';
+import { saveLanguage, watchLanguage } from '@/utils/language';
+import type { LanguagePreference } from '@/utils/i18n';
 // 设置页（popup）：自定义各链 RPC 端点。留空 = 用内置 publicnode 默认。
 // 「测试」按钮对目标端点发 eth_blockNumber 验证连通性。
 
@@ -13,7 +16,7 @@ h1 { font-size: 14px; margin: 0 0 2px; }
 .sub { color: #7d8590; font-size: 12px; margin-bottom: 12px; }
 .row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .chain { width: 82px; flex: none; color: #c9d1d9; }
-input { flex: 1; min-width: 0; padding: 5px 8px; border-radius: 6px; border: 1px solid #2a3138;
+input, select { flex: 1; min-width: 0; padding: 5px 8px; border-radius: 6px; border: 1px solid #2a3138;
   background: #0a0d10; color: #e8eaed; font: 12px/1.4 ui-monospace, Menlo, monospace; }
 input::placeholder { color: #4d5761; }
 input.bad { border-color: #cf222e; }
@@ -23,6 +26,7 @@ button:hover { background: #262d35; }
 .st { width: 34px; flex: none; text-align: center; font-size: 12px; }
 .ok { color: #3fb950; } .err { color: #f85149; }
 .foot { color: #7d8590; font-size: 11px; margin-top: 10px; line-height: 1.5; }
+.links { display: flex; gap: 14px; margin: 12px 0; } a { color: #58a6ff; }
 `;
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, text?: string) {
@@ -46,16 +50,38 @@ async function testRpc(url: string): Promise<boolean> {
   }
 }
 
-async function main() {
-  const style = document.createElement('style');
-  style.textContent = CSS;
-  document.head.appendChild(style);
-
+async function main(preference: LanguagePreference) {
+  document.documentElement.lang = getLocale();
+  document.title = tr('APY Lens 设置');
   const app = document.getElementById('app')!;
   const wrap = el('div', 'wrap');
-  wrap.appendChild(el('h1', undefined, '自定义 RPC'));
+  const languageRow = el('div', 'row');
+  const languageLabel = el('label', undefined, tr('界面语言'));
+  languageLabel.htmlFor = 'language';
+  const language = el('select');
+  language.id = 'language';
+  for (const [value, label] of [['auto', tr('跟随浏览器')], ['zh-CN', '中文'], ['en', 'English']]) {
+    const option = el('option', undefined, label);
+    option.value = value;
+    language.appendChild(option);
+  }
+  language.value = preference;
+  language.addEventListener('change', () => { void saveLanguage(language.value as LanguagePreference); });
+  languageRow.append(languageLabel, language);
+  wrap.append(languageRow, el('div', 'foot', tr('语言切换立即生效，不重新查询收益数据。')));
+  const links = el('nav', 'links');
+  const suffix = getLocale() === 'zh-CN' ? '.zh-CN' : '';
+  for (const [label, file] of [['使用说明', `README${suffix}.md`], ['支持的协议', `docs/PROTOCOLS${suffix}.md`], ['隐私说明', `PRIVACY${suffix}.md`]]) {
+    const link = el('a', undefined, tr(label));
+    link.href = `https://github.com/PG2047/debank-apy-lens-public/blob/main/${file}`;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    links.appendChild(link);
+  }
+  wrap.appendChild(links);
+  wrap.appendChild(el('h1', undefined, tr("自定义 RPC")));
   wrap.appendChild(
-    el('div', 'sub', '留空用内置公共节点。支持逗号分隔多个 URL（逐请求轮转分摊配额）。修改即保存，跨设备同步。'),
+    el('div', 'sub', tr("留空用内置公共节点。支持逗号分隔多个 URL（逐请求轮转分摊配额）。修改即保存，跨设备同步。")),
   );
 
   const overrides = await getRpcOverrides();
@@ -87,7 +113,7 @@ async function main() {
       setTimeout(() => (st.textContent = ''), 1200);
     };
     input.addEventListener('change', save);
-    const btn = el('button', undefined, '测试');
+    const btn = el('button', undefined, tr("测试"));
     btn.addEventListener('click', async () => {
       st.textContent = '…';
       st.className = 'st';
@@ -103,9 +129,12 @@ async function main() {
   }
 
   wrap.appendChild(
-    el('div', 'foot', '自定义 RPC 仅用于链上直读（Uniswap LP 区间等）。需允许浏览器跨域访问（主流 RPC 服务商均支持）。'),
+    el('div', 'foot', tr("自定义 RPC 仅用于链上直读（Uniswap LP 区间等）。需允许浏览器跨域访问（主流 RPC 服务商均支持）。")),
   );
-  app.appendChild(wrap);
+  app.replaceChildren(wrap);
 }
 
-void main();
+const style = document.createElement('style');
+style.textContent = CSS;
+document.head.appendChild(style);
+void watchLanguage((preference) => { void main(preference); });

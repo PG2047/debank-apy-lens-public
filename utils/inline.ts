@@ -1,3 +1,4 @@
+import { tr, getLocale } from './i18n';
 // 嵌入式徽章：净APY/杠杆挂协议标题旁；每个独立仓位挂「净值·杠杆·净APY」徽章；
 // 每资产行旁挂利率小徽章。
 //
@@ -396,7 +397,7 @@ function el<K extends keyof HTMLElementTagNameMap>(
 ): HTMLElementTagNameMap[K] {
   const node = document.createElement(tag);
   if (cls) node.className = cls;
-  if (text !== undefined) node.textContent = text;
+  if (text !== undefined) node.textContent = tr(text);
   return node;
 }
 
@@ -414,11 +415,11 @@ function appendSourceOverview(tip: HTMLElement, source: RewardSourcePresentation
 
 function appendRewardOverview(tip: HTMLElement): void {
   const block = el('div', 'source-block');
-  block.appendChild(el('div', 'source-title', '奖励与积分说明'));
+  block.appendChild(el('div', 'source-title', tr("奖励与积分说明")));
   block.appendChild(el(
     'div',
     'source-desc',
-    '奖励 APY 按对应活动来源单独展示；积分只展示倍数或资格，不折算成 APY。下方链接用于核对活动规则、计算方式与适用范围。',
+    tr("奖励 APY 按对应活动来源单独展示；积分只展示倍数或资格，不折算成 APY。下方链接用于核对活动规则、计算方式与适用范围。"),
   ));
   tip.appendChild(block);
 }
@@ -491,7 +492,7 @@ function attachPortalTooltip(
   tip.setAttribute('role', 'tooltip');
   trigger.tabIndex = 0;
   trigger.setAttribute('role', 'button');
-  trigger.setAttribute('aria-label', label);
+  trigger.setAttribute('aria-label', tr(label));
   trigger.setAttribute('aria-describedby', id);
   trigger.setAttribute('aria-expanded', 'false');
   trigger.addEventListener('pointerenter', show);
@@ -522,7 +523,7 @@ function linkTooltip(trigger: HTMLElement, tip: HTMLElement, label: string): voi
   const setOpen = (open: boolean) => trigger.setAttribute('aria-expanded', String(open));
   trigger.tabIndex = 0;
   trigger.setAttribute('role', 'button');
-  trigger.setAttribute('aria-label', label);
+  trigger.setAttribute('aria-label', tr(label));
   trigger.setAttribute('aria-describedby', id);
   setOpen(false);
   trigger.addEventListener('pointerdown', () => {
@@ -574,7 +575,7 @@ function protocolChip(card: ProtocolCard, generatedAt: number): HTMLElement {
   let cls: string;
   if (card.kind === 'lp') {
     const anyOut = card.items.some((it) => it.range && !it.range.inRange);
-    label = `LP ${usd(y.equityUsd)} · ${card.items.length} 仓位 · 手续费收益未计入`;
+    label = tr("LP {0} · {1} 仓位 · 手续费收益未计入", usd(y.equityUsd), card.items.length);
     cls = card.items.some((it) => it.range) ? (anyOut ? 'neg' : 'pos') : 'na';
   } else {
     label =
@@ -596,7 +597,7 @@ function protocolChip(card: ProtocolCard, generatedAt: number): HTMLElement {
           'item',
           r
             ? `#${r.positionIndex} ${rangeText(r)} · ${usd(it.yield.equityUsd)}`
-            : `${it.name} · ${usd(it.yield.equityUsd)} · 区间数据不可用`,
+            : tr("{0} · {1} · 区间数据不可用", it.name, usd(it.yield.equityUsd)),
         ),
       );
       continue;
@@ -605,7 +606,7 @@ function protocolChip(card: ProtocolCard, generatedAt: number): HTMLElement {
       const iy = it.yield;
       const lev = iy.leverage !== null && iy.leverage > 1.05 ? ` · ${iy.leverage.toFixed(2)}x` : '';
       tip.appendChild(
-        el('div', 'item', `${it.name} · 净值 ${usd(iy.equityUsd)}${lev} · ${yieldHeadline(iy)}`),
+        el('div', 'item', tr("{0} · 净值 {1}{2} · {3}", it.name, usd(iy.equityUsd), lev, yieldHeadline(iy))),
       );
     }
     appendAssetRows(tip, it.yield.assets);
@@ -617,12 +618,12 @@ function protocolChip(card: ProtocolCard, generatedAt: number): HTMLElement {
       el(
         'div',
         'meta',
-        `权益 ${usd(y.equityUsd)} · ${complete ? '预估日收益' : '日收益小计'} ${usd(daily)}（按当前已知利率前瞻推算）`,
+        tr("权益 {0} · {1} {2}（按当前已知利率前瞻推算）", usd(y.equityUsd), complete ? tr("预估日收益") : tr("日收益小计"), usd(daily)),
       ),
     );
   }
   for (const f of y.flags) tip.appendChild(el('div', 'flag', `⚠ ${f}`));
-  tip.appendChild(el('div', 'meta', `APY Lens · ${new Date(generatedAt).toLocaleTimeString()}`));
+  tip.appendChild(el('div', 'meta', `APY Lens · ${new Date(generatedAt).toLocaleTimeString(getLocale())}`));
   linkTooltip(trigger, tip, label);
   root.appendChild(tip);
   return host;
@@ -645,7 +646,7 @@ export function rangeWidget(r: LpRange, assets: AssetYield[], key: string): HTML
   const upper = r.fullRange ? '∞' : fmtPrice(r.upperPrice);
   const ariaParts = [
     `#${r.positionIndex}`,
-    r.inRange ? '区间内' : '区间外',
+    r.inRange ? tr("区间内") : tr("区间外"),
     fmtPrice(r.currentPrice),
     lower,
     upper,
@@ -655,7 +656,7 @@ export function rangeWidget(r: LpRange, assets: AssetYield[], key: string): HTML
   // 行高 108px 才装得下完整模块（真机实测 2026-07-08，编号原位于行内 45px 处，往下排必溢出）
   const idRow = el('div', 'rw-id');
   idRow.appendChild(el('span', 'pid', `#${r.positionIndex}`));
-  idRow.appendChild(el('span', 'tag', r.inRange ? '区间内' : '区间外'));
+  idRow.appendChild(el('span', 'tag', r.inRange ? tr("区间内") : tr("区间外")));
   box.appendChild(idRow);
 
   const belowRange = !r.inRange && r.currentPrice < r.lowerPrice;
@@ -766,10 +767,10 @@ function itemChip(item: ItemYield, key: string): HTMLElement {
   const y = item.yield;
   const { host, root } = makeHost('item', key);
   const lev = y.leverage !== null && y.leverage > 1.05 ? ` · ${y.leverage.toFixed(2)}x` : '';
-  const label = `净值 ${usd(y.equityUsd)}${lev} · ${yieldHeadline(y)}`;
+  const label = tr("净值 {0}{1} · {2}", usd(y.equityUsd), lev, yieldHeadline(y));
   const chip = el('span', `chip ${clsOf(y)}`, label);
   chip.setAttribute('role', 'status');
-  chip.setAttribute('aria-label', label);
+  chip.setAttribute('aria-label', tr(label));
   root.appendChild(chip);
   return host;
 }
@@ -798,19 +799,19 @@ function summaryChip(s: NonNullable<EnrichResult['summary']>, generatedAt: numbe
   const lpPart =
     s.lpTotal > 0
       ? s.lpOutOfRange > 0
-        ? ` · ⚠LP ${s.lpTotal - s.lpOutOfRange}/${s.lpTotal}在区间`
-        : ` · LP ${s.lpTotal}/${s.lpTotal}在区间`
+        ? tr(" · ⚠LP {0}/{1}在区间", s.lpTotal - s.lpOutOfRange, s.lpTotal)
+        : tr(" · LP {0}/{1}在区间", s.lpTotal, s.lpTotal)
       : '';
   const claimPart =
     s.claimableState === 'unknown'
-      ? ' · 待领 --'
+      ? tr(" · 待领 --")
       : s.claimableState === 'partial'
-        ? ` · 待领部分 ${s.claimableUsd !== null ? usd(s.claimableUsd) : '--'}`
+        ? tr(" · 待领部分 {0}", s.claimableUsd !== null ? usd(s.claimableUsd) : '--')
         : s.claimableUsd !== null && s.claimableUsd > 1
-          ? ` · 待领 ${usd(s.claimableUsd)}`
+          ? tr(" · 待领 {0}", usd(s.claimableUsd))
           : '';
   const liquidityPart = (s.liquidityRedCount ?? 0) > 0
-    ? ` · ⚠流动性 ${s.liquidityRedCount}`
+    ? tr(" · ⚠流动性 {0}", s.liquidityRedCount)
     : '';
   const label = `${daily.label} ${fmt(displayedDaily)}${lpPart}${liquidityPart}${claimPart}`;
   const trigger = el(
@@ -822,7 +823,7 @@ function summaryChip(s: NonNullable<EnrichResult['summary']>, generatedAt: numbe
   const tip = el('div', 'tip');
   if (s.claimTop.length > 0) {
     tip.appendChild(
-      el('div', 'row', `待领奖励：${s.claimTop.map((t) => `${t.symbol} ${usd(t.usd)}`).join(' · ')}（Merkl）`),
+      el('div', 'row', tr("待领奖励：{0}（Merkl）", s.claimTop.map((t) => `${t.symbol} ${usd(t.usd)}`).join(' · '))),
     );
   }
   if (s.claimableState !== 'complete') {
@@ -834,14 +835,14 @@ function summaryChip(s: NonNullable<EnrichResult['summary']>, generatedAt: numbe
         'div',
         'flag',
         s.claimableState === 'partial'
-          ? `⚠ Merkl 待领奖励部分查询失败${failureDetails ? `：${failureDetails}` : ''}`
-          : `⚠ Merkl 待领奖励查询未知${failureDetails ? `：${failureDetails}` : ''}`,
+          ? tr("⚠ Merkl 待领奖励部分查询失败{0}", failureDetails ? `：${failureDetails}` : '')
+          : tr("⚠ Merkl 待领奖励查询未知{0}", failureDetails ? `：${failureDetails}` : ''),
       ),
     );
   }
   if ((s.liquidityRedCount ?? 0) > 0) {
     tip.appendChild(
-      el('div', 'flag', `⚠ ${s.liquidityRedCount} 个出借资产的当前可提流动性不超过仓位的 110%`),
+      el('div', 'flag', tr("⚠ {0} 个出借资产的当前可提流动性不超过仓位的 110%", s.liquidityRedCount)),
     );
   }
   tip.appendChild(
@@ -849,15 +850,15 @@ function summaryChip(s: NonNullable<EnrichResult['summary']>, generatedAt: numbe
       'div',
       'row',
       complete
-        ? '今日预估：按当前已知的基础与奖励利率前瞻折算到 1 天'
-        : '今日小计：基础利率或奖励覆盖不完整，不代表完整组合日收益',
+        ? tr("今日预估：按当前已知的基础与奖励利率前瞻折算到 1 天")
+        : tr("今日小计：基础利率或奖励覆盖不完整，不代表完整组合日收益"),
     ),
   );
   const excluded = s.excludedUsd && s.excludedUsd > 0
-    ? `；策略排除 ${usd(s.excludedUsd)}（LP 手续费收益不估算）`
+    ? tr("；策略排除 {0}（LP 手续费收益不估算）", usd(s.excludedUsd))
     : '';
-  tip.appendChild(el('div', 'meta', `覆盖 ${usd(s.coveredUsd)} 仓位；未覆盖 ${usd(s.uncoveredUsd)}${excluded}`));
-  tip.appendChild(el('div', 'meta', `APY Lens · ${new Date(generatedAt).toLocaleTimeString()}`));
+  tip.appendChild(el('div', 'meta', tr("覆盖 {0} 仓位；未覆盖 {1}{2}", usd(s.coveredUsd), usd(s.uncoveredUsd), excluded)));
+  tip.appendChild(el('div', 'meta', `APY Lens · ${new Date(generatedAt).toLocaleTimeString(getLocale())}`));
   linkTooltip(trigger, tip, label);
   root.appendChild(tip);
   return host;
@@ -884,17 +885,17 @@ function assetChip(a: AssetYield, cardKey: string): HTMLElement {
   for (const component of a.rewardComponents ?? []) {
     const source = rewardComponentSource(component);
     if (source) appendSourceOverview(tip, source);
-    else tip.appendChild(el('div', 'meta', `${component.label ?? component.id} 来源：${component.source}`));
+    else tip.appendChild(el('div', 'meta', tr("{0} 来源：{1}", component.label ?? component.id, component.source)));
   }
   for (const entitlement of a.rewardEntitlements ?? []) {
     const source = rewardEntitlementSource(entitlement);
     if (source) appendSourceOverview(tip, source);
-    else tip.appendChild(el('div', 'meta', `${entitlement.label} 来源：${entitlement.source}`));
+    else tip.appendChild(el('div', 'meta', tr("{0} 来源：{1}", entitlement.label, entitlement.source)));
     for (const note of entitlement.notes ?? (entitlement.note ? [entitlement.note] : [])) {
       tip.appendChild(el('div', 'flag', note));
     }
   }
-  tip.appendChild(el('div', 'meta', `数据源：${a.source}`));
+  tip.appendChild(el('div', 'meta', tr("数据源：{0}", a.source)));
   attachPortalTooltip(
     chip,
     tip,
@@ -1069,9 +1070,9 @@ function injectAll(result: EnrichResult): ProtocolCard[] {
     // 诊断日志（仅在状态变化时打，避免刷屏）
     const line =
       `[APY Lens] 内嵌锚定 ${anchored}/${result.cards.length}` +
-      (leftovers.length ? `，降级面板: ${leftovers.map((c) => c.title).join(', ')}` : '') +
-      (zeroAnchorTitles.length ? `，页面上找不到标题文本: ${zeroAnchorTitles.join(', ')}` : '') +
-      (lowScoreTitles.length ? `，锚点评分不足: ${lowScoreTitles.join(', ')}` : '');
+      (leftovers.length ? tr("，降级面板: {0}", leftovers.map((c) => c.title).join(', ')) : '') +
+      (zeroAnchorTitles.length ? tr("，页面上找不到标题文本: {0}", zeroAnchorTitles.join(', ')) : '') +
+      (lowScoreTitles.length ? tr("，锚点评分不足: {0}", lowScoreTitles.join(', ')) : '');
     if (line !== lastLogLine) {
       lastLogLine = line;
       console.info(line);
@@ -1220,4 +1221,9 @@ export function clearInline(): void {
   restoreHiddenAnchors();
   document.querySelectorAll(`[${CHIP_ATTR}]`).forEach((node) => node.remove());
   removePanel();
+}
+
+/** Repaint the current result without fetching or changing rate caches. */
+export function redrawInline(): void {
+  if (lastResult) renderInline(lastResult, lastHistorySource ?? undefined);
 }

@@ -46,6 +46,10 @@ test('history success, rejection, failure, and burst stay local and preserve the
   installGlobal('NodeFilter', { SHOW_TEXT: 4 });
   installGlobal('MutationObserver', page.window.MutationObserver);
   installGlobal('browser', {
+    storage: {
+      sync: { get: async () => ({ 'dal:language': 'zh-CN' }) },
+      onChanged: { addListener() {}, removeListener() {} },
+    },
     runtime: {
       sendMessage: async (message: unknown) => {
         sent.push(message);

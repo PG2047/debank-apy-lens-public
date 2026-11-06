@@ -1,6 +1,8 @@
 # Privacy notice
 
-Applies to the public DeBank APY Lens extension, version 0.5.14.
+[English](PRIVACY.md) · [中文](PRIVACY.zh-CN.md)
+
+Applies to the public DeBank APY Lens extension, version 0.5.15.
 Last updated: 2026-11-06.
 
 ## Data read by the extension
@@ -45,6 +47,10 @@ Portfolio data, history samples, calculated results, and API caches are held in
 memory. The extension does not persist them in Chrome storage. Page data is
 released when its document ends; service-worker caches expire, are evicted, or
 end when the worker stops.
+
+The interface language preference (`auto`, `zh-CN`, or `en`) is saved under
+`dal:language` in Chrome `storage.sync`. It may sync through your Google account.
+Language changes only repaint existing results; they do not send extra protocol requests.
 
 Custom RPC URLs are saved under `dal:rpcOverrides` in Chrome `storage.sync`.
 Depending on your Chrome settings and extension identity, Chrome can sync them

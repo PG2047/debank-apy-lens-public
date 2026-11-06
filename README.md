@@ -1,13 +1,23 @@
 # DeBank APY Lens
 
 A Chrome Manifest V3 extension that adds yield breakdowns to DeBank portfolio pages.
-The interface is in Chinese. [中文安装说明](README.zh-CN.md)
+[English](README.md) · [中文](README.zh-CN.md)
+
+The interface and documentation are available in English and Simplified Chinese.
 
 This is an independent project. It is not affiliated with or endorsed by DeBank.
 DeBank's [Terms of Service, section 4(h)](https://debank.com/docs/terms) restrict
 unauthorized browser extensions that access data or modify its pages. The MIT
 license covers this code; it does not grant permission to use DeBank's services.
 This project has not been submitted to the Chrome Web Store.
+
+## Language
+
+Open the extension popup and select **Follow browser**, **中文**, or **English**.
+The default follows the browser language (Chinese for `zh`, English otherwise).
+Switching repaints the popup, badges, tooltips, status bar, and activity panel
+without fetching yields again. The choice is saved in Chrome sync storage.
+Browser extension metadata follows Chrome’s own language.
 
 ## Features
 
@@ -22,14 +32,14 @@ This project has not been submitted to the Chrome Web Store.
 
 The bundled directory identifies 73 EVM chains as of 2026-09-21. Twelve rate
 adapters and three LP routes cover selected products, not every protocol on
-every chain. See [data sources](docs/DATA_SOURCES.md) and
+every chain. See [full protocol guide](docs/PROTOCOLS.md), [data sources](docs/DATA_SOURCES.md), and
 [deployment coverage](docs/EVM_DEPLOYMENTS.md). Curve and Pendle are not supported.
 
 ## Install on another computer
 
 No Node.js installation or compilation is needed for a release ZIP.
 
-1. Download `debank-apy-lens-0.5.14-chrome.zip` from
+1. Download `debank-apy-lens-0.5.15-chrome.zip` from
    [Releases](https://github.com/PG2047/debank-apy-lens-public/releases/latest).
    Use the extension ZIP, not GitHub's automatic source-code archive.
 2. Extract it to a folder you will keep.
@@ -37,7 +47,7 @@ No Node.js installation or compilation is needed for a release ZIP.
 4. Select **Load unpacked**, then select the folder that directly contains
    `manifest.json`.
 5. Close any existing DeBank tabs and open a portfolio page again. The extension
-   status bar should show `v0.5.14`.
+   status bar should show `v0.5.15`.
 
 Keep the extracted folder. Unpacked extensions need manual updates. For an
 update, replace the files in that folder with the new release, click **Reload**
@@ -91,6 +101,19 @@ signing. See [PRIVACY.md](PRIVACY.md) for recipients, storage, and controls.
 The public repository starts with a source snapshot and synthetic wallet test
 fixtures. Private development history, handoffs, local configuration, and old
 installation packages are not included.
+
+## Documentation
+
+| Topic | English | 中文 |
+|---|---|---|
+| Protocols and product limits | [Guide](docs/PROTOCOLS.md) | [指南](docs/PROTOCOLS.zh-CN.md) |
+| All 73 chains and LP deployments | [Directory](docs/EVM_DEPLOYMENTS.md) | [目录](docs/EVM_DEPLOYMENTS.zh-CN.md) |
+| Yield and reward rules | [Contract](docs/DATA_SOURCES.md) | [契约](docs/DATA_SOURCES.zh-CN.md) |
+| Reward source links | [Contract](docs/REWARD_SOURCE_LINKS.md) | [契约](docs/REWARD_SOURCE_LINKS.zh-CN.md) |
+| Transaction filter | [Contract](docs/TRANSACTION_FILTER.md) | [契约](docs/TRANSACTION_FILTER.zh-CN.md) |
+| Privacy | [Notice](PRIVACY.md) | [说明](PRIVACY.zh-CN.md) |
+| Release history | [Changelog](CHANGELOG.md) | [更新记录](CHANGELOG.zh-CN.md) |
+| License | [MIT](LICENSE) | [非正式译文](LICENSE.zh-CN.md) |
 
 ## License and limits
 

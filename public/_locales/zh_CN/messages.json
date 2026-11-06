@@ -1,0 +1,11 @@
+{
+  "extensionName": {
+    "message": "DeBank APY Lens"
+  },
+  "extensionDescription": {
+    "message": "在 DeBank 仓位上显示基础收益、奖励、净 APY、杠杆和 LP 区间。"
+  },
+  "actionTitle": {
+    "message": "APY Lens 设置"
+  }
+}

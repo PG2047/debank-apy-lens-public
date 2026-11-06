@@ -1,3 +1,4 @@
+import { tr, getLocale } from './i18n';
 import type { CoverageIssue } from './overlay';
 
 export type LensPhase =
@@ -111,25 +112,25 @@ function presentation(status: LensStatus): {
 } {
   switch (status.phase) {
     case 'waiting':
-      return { label: '等待页面数据', tone: 'warn', button: '等待', action: null };
+      return { label: tr("等待页面数据"), tone: 'warn', button: tr("等待"), action: null };
     case 'loading':
-      return { label: '载入中', tone: 'busy', button: '停止', action: 'stop' };
+      return { label: tr("载入中"), tone: 'busy', button: tr("停止"), action: 'stop' };
     case 'refreshing':
-      return { label: '刷新中', tone: 'busy', button: '停止刷新', action: 'stop' };
+      return { label: tr("刷新中"), tone: 'busy', button: tr("停止刷新"), action: 'stop' };
     case 'stopping':
-      return { label: '正在停止', tone: 'busy', button: '停止中', action: null };
+      return { label: tr("正在停止"), tone: 'busy', button: tr("停止中"), action: null };
     case 'stopped':
       return {
-        label: '已停止',
+        label: tr("已停止"),
         tone: 'stopped',
-        button: status.canRefresh ? '继续刷新' : '等待',
+        button: status.canRefresh ? tr("继续刷新") : tr("等待"),
         action: status.canRefresh ? 'refresh' : null,
       };
     case 'error':
       return {
-        label: status.hasData ? '刷新失败 · 保留旧数据' : '载入失败',
+        label: status.hasData ? tr("刷新失败 · 保留旧数据") : tr("载入失败"),
         tone: 'err',
-        button: status.canRefresh ? '重试' : '等待',
+        button: status.canRefresh ? tr("重试") : tr("等待"),
         action: status.canRefresh ? 'refresh' : null,
       };
     case 'ready':
@@ -137,13 +138,13 @@ function presentation(status: LensStatus): {
         label:
           status.coverage === 'partial'
             ? status.gapCount && status.gapCount > 0
-              ? `载入完成 · ${status.gapCount}项缺口`
-              : '载入完成 · 部分数据'
+              ? tr("载入完成 · {0}项缺口", status.gapCount)
+              : tr("载入完成 · 部分数据")
             : status.coverage === 'empty'
-              ? '载入完成 · 无仓位'
-              : '载入完成',
+              ? tr("载入完成 · 无仓位")
+              : tr("载入完成"),
         tone: status.coverage === 'partial' ? 'warn' : 'ok',
-        button: '刷新',
+        button: tr("刷新"),
         action: status.canRefresh ? 'refresh' : null,
       };
   }
@@ -166,6 +167,7 @@ function tryRender(): void {
     document.querySelectorAll(`[${STATUS_ATTR}]`).forEach((node) => node.remove());
     const host = document.createElement('span');
     host.setAttribute(STATUS_ATTR, currentStatus.phase);
+    host.lang = getLocale();
     const root = host.attachShadow({ mode: 'open' });
     const style = document.createElement('style');
     style.textContent = STATUS_CSS;
@@ -183,10 +185,10 @@ function tryRender(): void {
       currentStatus.detail ?? view.label,
       ...(currentStatus.gapDetails ?? []),
       ...(currentStatus.lastUpdatedAt
-        ? [`最近完成：${new Date(currentStatus.lastUpdatedAt).toLocaleTimeString()}`]
+        ? [tr("最近完成：{0}", new Date(currentStatus.lastUpdatedAt).toLocaleTimeString(getLocale()))]
         : []),
-    ];
-    bar.setAttribute('aria-label', tipLines.join('；'));
+    ].map((line) => tr(line));
+    bar.setAttribute('aria-label', tr(tipLines.join('；')));
 
     const dot = document.createElement('span');
     dot.className = 'dot';
@@ -260,4 +262,8 @@ export function destroyStatusBar(): void {
   observer?.disconnect();
   observer = null;
   document.querySelectorAll(`[${STATUS_ATTR}]`).forEach((node) => node.remove());
+}
+
+export function redrawStatusBar(): void {
+  tryRender();
 }

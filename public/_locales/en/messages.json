@@ -1,0 +1,11 @@
+{
+  "extensionName": {
+    "message": "DeBank APY Lens"
+  },
+  "extensionDescription": {
+    "message": "Add base yield, rewards, net APY, leverage, and LP ranges to DeBank portfolios."
+  },
+  "actionTitle": {
+    "message": "APY Lens Settings"
+  }
+}

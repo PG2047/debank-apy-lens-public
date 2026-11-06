@@ -1,3 +1,4 @@
+import { tr } from './i18n';
 import type { RewardComponent, RewardEntitlement } from './adapters/types';
 
 export interface RewardSourcePresentation {
@@ -122,13 +123,13 @@ export function rewardComponentSource(
   const rule = ruleFor(component.source);
   const exactUrl = safeHttpsUrl(component.sourceUrl);
   if (!rule && !exactUrl) return null;
-  const reward = component.label ? `奖励 ${component.label}` : '额外奖励';
+  const reward = component.label ? tr("奖励 {0}", component.label) : tr("额外奖励");
   return {
-    title: `${reward} 来源说明`,
-    description: rule?.description ?? `这部分奖励由 ${component.source} 提供。`,
+    title: tr("{0} 来源说明", reward),
+    description: rule ? tr(rule.description) : tr("这部分奖励由 {0} 提供。", component.source),
     linkLabel: exactUrl && component.source.toLowerCase().includes('merkl')
-      ? '查看本次 Merkl 奖励活动'
-      : rule?.linkLabel ?? '查看官方来源',
+      ? tr("查看本次 Merkl 奖励活动")
+      : (rule ? tr(rule.linkLabel) : tr("查看官方来源")),
     url: exactUrl ?? rule!.url,
   };
 }
@@ -141,11 +142,11 @@ export function rewardEntitlementSource(
   if (!rule && !exactUrl) return null;
   const isPoints = entitlement.category !== 'ecosystem-reward';
   return {
-    title: `${isPoints ? '积分' : '资格'}来源说明`,
+    title: tr("{0}来源说明", isPoints ? tr("积分") : tr("资格")),
     description: isPoints
-      ? '这是独立的积分或倍数资格，不折算成 APY；链接用于核对官方计算规则和资格边界。'
-      : '这是非积分的生态奖励或空投资格；链接用于核对官方产品规则和已公布权益。',
-    linkLabel: isPoints ? '查看官方积分规则' : '查看官方资格说明',
+      ? tr("这是独立的积分或倍数资格，不折算成 APY；链接用于核对官方计算规则和资格边界。")
+      : tr("这是非积分的生态奖励或空投资格；链接用于核对官方产品规则和已公布权益。"),
+    linkLabel: isPoints ? tr("查看官方积分规则") : tr("查看官方资格说明"),
     url: exactUrl ?? rule!.url,
   };
 }

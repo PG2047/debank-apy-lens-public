@@ -1,3 +1,4 @@
+import { tr, getLocale } from './i18n';
 // 悬浮面板渲染（Shadow DOM 样式隔离）。
 // v0.1 刻意用固定悬浮面板而非嵌入 DeBank 卡片——对 DeBank 的 DOM 改版免疫；
 // Phase 1.5 拿到真实 DOM 锚点后再做嵌入式徽章。
@@ -51,7 +52,7 @@ export interface ProtocolCard {
 }
 
 function componentValue(component: RewardComponent): string {
-  if (component.rateKind === 'annual-usd') return `${usd(component.value)}/年`;
+  if (component.rateKind === 'annual-usd') return tr("{0}/年", usd(component.value));
   return `${pct(component.value)} ${component.rateKind.toUpperCase()}`;
 }
 
@@ -75,8 +76,8 @@ export function assetRatePresentation(asset: AssetYield): AssetRatePresentation 
   const compactBase = `APY ${pct(signedBase)}`;
   const details = [
     asset.leg === 'borrow'
-      ? `借款成本 ${pct(signedBase)}`
-      : `基础 APY ${pct(asset.baseApy)}`,
+      ? tr("借款成本 {0}", pct(signedBase))
+      : tr("基础 APY {0}", pct(asset.baseApy)),
   ];
   const components = [
     ...new Map(reward.rewardComponents.map((component) => [component.id, component])).values(),
@@ -89,7 +90,7 @@ export function assetRatePresentation(asset: AssetYield): AssetRatePresentation 
   const compactRewards: string[] = [];
   if (components.length > 0) {
     for (const component of components) {
-      details.push(`奖励${component.label ? ` ${component.label}` : ''} ${componentValue(component)}`);
+      details.push(tr("奖励{0} {1}", component.label ? ` ${component.label}` : '', componentValue(component)));
     }
     const rateTotal = components
       .filter((component) => component.rateKind !== 'annual-usd')
@@ -98,54 +99,54 @@ export function assetRatePresentation(asset: AssetYield): AssetRatePresentation 
       .filter((component) => component.rateKind === 'annual-usd')
       .reduce((sum, component) => sum + component.value, 0);
     if (rateTotal > 0) compactRewards.push(pct(rateTotal));
-    if (annualUsd > 0) compactRewards.push(`${usd(annualUsd)}/年`);
+    if (annualUsd > 0) compactRewards.push(tr("{0}/年", usd(annualUsd)));
     const state = reward.rewardState;
     if (state === 'unknown') {
       if (entitlements.length === 0) {
-        details.push('其他奖励 未知');
+        details.push(tr("其他奖励 未知"));
         compactRewards.push('--');
       }
     } else if (state === 'non-annualizable') {
       if (entitlements.length === 0) {
-        details.push('另有奖励存在，无法年化');
+        details.push(tr("另有奖励存在，无法年化"));
         compactRewards.push('--');
       }
     }
   } else {
     switch (reward.rewardState) {
       case 'numeric-known':
-        details.push(reward.rewardApr === null ? '奖励 未知' : `奖励 ${pct(reward.rewardApr)} APR`);
+        details.push(reward.rewardApr === null ? tr("奖励 未知") : tr("奖励 {0} APR", pct(reward.rewardApr)));
         compactRewards.push(reward.rewardApr === null ? '--' : pct(reward.rewardApr));
         break;
       case 'confirmed-zero':
-        details.push('奖励 0%');
+        details.push(tr("奖励 0%"));
         compactRewards.push('0%');
         break;
       case 'unknown':
-        details.push('奖励 未知');
+        details.push(tr("奖励 未知"));
         compactRewards.push('--');
         break;
       case 'non-annualizable':
-        details.push('奖励存在，无法年化');
+        details.push(tr("奖励存在，无法年化"));
         compactRewards.push('--');
         break;
       case 'not-applicable':
-        if (entitlements.length === 0) details.push('奖励 不适用');
+        if (entitlements.length === 0) details.push(tr("奖励 不适用"));
         break;
     }
   }
   for (const entitlement of entitlements) {
     const verification = entitlement.verification === 'index-confirmed'
-      ? '索引已核实'
+      ? tr("索引已核实")
       : entitlement.verification === 'rule-confirmed'
-        ? '当前规则已核实'
-        : '资格未核实';
-    const category = entitlement.category === 'ecosystem-reward' ? '生态奖励' : '积分';
+        ? tr("当前规则已核实")
+        : tr("资格未核实");
+    const category = entitlement.category === 'ecosystem-reward' ? tr("生态奖励") : tr("积分");
     details.push(`${category} ${entitlement.label}：${entitlement.display}`);
-    details.push(`资格状态：${verification}`);
-    details.push('计算口径：不可折算 APY，不计入净APY或今日收益');
+    details.push(tr("资格状态：{0}", verification));
+    details.push(tr("计算口径：不可折算 APY，不计入净APY或今日收益"));
   }
-  const compactEntitlements = entitlements.map((entry) => entry.display);
+  const compactEntitlements = entitlements.map((entry) => tr(entry.display));
   const compactRates = [compactBase, ...compactRewards].join(' + ');
   return {
     compactBase,
@@ -207,17 +208,17 @@ export function liquidityRiskPresentation(asset: AssetYield): LiquidityRiskPrese
   const available = asset.poolStat.available === null
     ? '--'
     : format(asset.poolStat.available);
-  const basis = isUsd ? '' : '（token 口径）';
+  const basis = isUsd ? '' : tr("（token 口径）");
   return {
     ...assessment,
     compact: assessment.level === 'red'
-      ? '⚠流动性紧张'
-      : `占比 ${pct(assessment.sharePct)}`,
+      ? tr("⚠流动性紧张")
+      : tr("占比 {0}", pct(assessment.sharePct)),
     details: [
-      `我仓位 ${format(position)} · 占池子 ${pct(assessment.sharePct)}${basis}`,
-      `池子总规模 ${format(asset.poolStat.total)} · 当前可提 ${available}${basis}`,
-      `规则：当前可提≤我仓位×${pct(RED_AVAILABLE_MULTIPLE)} 为红；占池子≥${pct(YELLOW_SHARE_THRESHOLD)} 为黄（红优先）`,
-      `流动性数据源：${asset.poolStat.source}`,
+      tr("我仓位 {0} · 占池子 {1}{2}", format(position), pct(assessment.sharePct), basis),
+      tr("池子总规模 {0} · 当前可提 {1}{2}", format(asset.poolStat.total), available, basis),
+      tr("规则：当前可提≤我仓位×{0} 为红；占池子≥{1} 为黄（红优先）", pct(RED_AVAILABLE_MULTIPLE), pct(YELLOW_SHARE_THRESHOLD)),
+      tr("流动性数据源：{0}", asset.poolStat.source),
     ],
   };
 }
@@ -228,16 +229,16 @@ export function yieldHeadline(yieldValue: ProtocolYield): string {
     (!yieldValue.rewardCoverageComplete || !yieldValue.rateCoverageComplete) &&
     yieldValue.knownNetApy !== null
   ) {
-    return `小计 ${pct(yieldValue.knownNetApy)}`;
+    return tr("小计 {0}", pct(yieldValue.knownNetApy));
   }
-  return `净APY ${pct(yieldValue.netApy)}`;
+  return tr("净APY {0}", pct(yieldValue.netApy));
 }
 
 /** LP 区间文字只保留状态与价格；DEX APY 策略不占用仓位卡片。 */
 export const rangeText = (r: LpRange): string =>
-  `${r.inRange ? '区间内' : '区间外'} ` +
+  `${r.inRange ? tr("区间内") : tr("区间外")} ` +
   (r.fullRange
-    ? `全区间 ⟨${fmtPrice(r.currentPrice)}⟩`
+    ? tr("全区间 ⟨{0}⟩", fmtPrice(r.currentPrice))
     : `${fmtPrice(r.lowerPrice)} ⟨${fmtPrice(r.currentPrice)}⟩ ${fmtPrice(r.upperPrice)}`);
 
 export interface PortfolioSummary {
@@ -267,7 +268,7 @@ export interface CoverageIssue {
 
 export function portfolioDailyHeadline(summary: PortfolioSummary): {
   complete: boolean;
-  label: '今日预估' | '今日小计';
+  label: string;
   value: number;
 } {
   const grossUsd = summary.coveredUsd + summary.uncoveredUsd;
@@ -278,7 +279,7 @@ export function portfolioDailyHeadline(summary: PortfolioSummary): {
     !materialUncovered;
   return {
     complete,
-    label: complete ? '今日预估' : '今日小计',
+    label: complete ? tr("今日预估") : tr("今日小计"),
     value: complete
       ? summary.estDailyUsd
       : (summary.knownEstDailyUsd ?? summary.estDailyUsd),
@@ -366,7 +367,7 @@ function el<K extends keyof HTMLElementTagNameMap>(
 ): HTMLElementTagNameMap[K] {
   const node = document.createElement(tag);
   if (cls) node.className = cls;
-  if (text !== undefined) node.textContent = text;
+  if (text !== undefined) node.textContent = tr(text);
   return node;
 }
 
@@ -401,15 +402,15 @@ export function renderPanel(result: EnrichResult, history?: Readonly<HistoryList
 
   const panel = el('div', 'panel');
   panel.setAttribute('role', 'complementary');
-  panel.setAttribute('aria-label', 'APY Lens 收益覆盖详情');
+  panel.setAttribute('aria-label', tr("APY Lens 收益覆盖详情"));
   const hdr = el('div', 'hdr');
   hdr.appendChild(el('b', undefined, 'APY Lens'));
   const right = el('span', 'hdr-right');
-  right.appendChild(el('span', 'age', new Date(result.generatedAt).toLocaleTimeString()));
+  right.appendChild(el('span', 'age', new Date(result.generatedAt).toLocaleTimeString(getLocale())));
   const btnMin = el('button', 'hbtn', panelMinimized ? '□' : '—');
   btnMin.type = 'button';
-  btnMin.title = panelMinimized ? '展开' : '最小化';
-  btnMin.setAttribute('aria-label', panelMinimized ? '展开 APY Lens' : '最小化 APY Lens');
+  btnMin.title = panelMinimized ? tr("展开") : tr("最小化");
+  btnMin.setAttribute('aria-label', panelMinimized ? tr("展开 APY Lens") : tr("最小化 APY Lens"));
   btnMin.setAttribute('aria-expanded', String(!panelMinimized));
   btnMin.addEventListener('click', () => {
     panelMinimized = !panelMinimized;
@@ -417,8 +418,8 @@ export function renderPanel(result: EnrichResult, history?: Readonly<HistoryList
   });
   const btnClose = el('button', 'hbtn', '✕');
   btnClose.type = 'button';
-  btnClose.title = '关闭（本页不再显示）';
-  btnClose.setAttribute('aria-label', '关闭 APY Lens');
+  btnClose.title = tr("关闭（本页不再显示）");
+  btnClose.setAttribute('aria-label', tr("关闭 APY Lens"));
   btnClose.addEventListener('click', () => {
     panelDismissed = true;
     removePanel();
@@ -435,11 +436,11 @@ export function renderPanel(result: EnrichResult, history?: Readonly<HistoryList
 
   if (result.inputCoverageComplete === false) {
     panel.appendChild(
-      el('div', 'empty', 'DeBank 仓位输入超出安全处理上限；仅显示已验证小计，未处理部分保持未知。'),
+      el('div', 'empty', tr("DeBank 仓位输入超出安全处理上限；仅显示已验证小计，未处理部分保持未知。")),
     );
   } else if (result.cards.length === 0) {
     panel.appendChild(
-      el('div', 'empty', `本页未发现可解析的受支持仓位（跳过 ${result.skippedProtocols} 个其他协议）`),
+      el('div', 'empty', tr("本页未发现可解析的受支持仓位（跳过 {0} 个其他协议）", result.skippedProtocols)),
     );
   }
 
@@ -480,7 +481,7 @@ export function renderPanel(result: EnrichResult, history?: Readonly<HistoryList
             'item',
             r
               ? `#${r.positionIndex} ${rangeText(r)} · ${usd(it.yield.equityUsd)}`
-              : `${it.name} · ${usd(it.yield.equityUsd)} · 区间数据不可用`,
+              : tr("{0} · {1} · 区间数据不可用", it.name, usd(it.yield.equityUsd)),
           ),
         );
         continue;
@@ -489,7 +490,7 @@ export function renderPanel(result: EnrichResult, history?: Readonly<HistoryList
         const iy = it.yield;
         const lev = iy.leverage !== null && iy.leverage > 1.05 ? ` · ${iy.leverage.toFixed(2)}x` : '';
         details.appendChild(
-          el('div', 'item', `${it.name} · 净值 ${usd(iy.equityUsd)}${lev} · ${yieldHeadline(iy)}`),
+          el('div', 'item', tr("{0} · 净值 {1}{2} · {3}", it.name, usd(iy.equityUsd), lev, yieldHeadline(iy))),
         );
       }
       for (const a of it.yield.assets) {
@@ -500,8 +501,8 @@ export function renderPanel(result: EnrichResult, history?: Readonly<HistoryList
         const risk = liquidityRiskPresentation(a);
         if (risk) rates.appendChild(el('span', `risk ${risk.level}`, ` · ${risk.compact}`));
         const rateDetails = [...presentation.details, ...(risk?.details ?? [])];
-        rates.title = rateDetails.join(' + ');
-        rates.setAttribute('aria-label', rateDetails.join('；'));
+        rates.title = tr(rateDetails.join(' + '));
+        rates.setAttribute('aria-label', tr(rateDetails.join('；')));
         row.appendChild(rates);
         details.appendChild(row);
       }
@@ -514,7 +515,7 @@ export function renderPanel(result: EnrichResult, history?: Readonly<HistoryList
         el(
           'div',
           'daily',
-          `权益 ${usd(y.equityUsd)} · ${complete ? '预估日收益' : '日收益小计'} ${usd(daily)}（按当前已知利率前瞻推算）`,
+          tr("权益 {0} · {1} {2}（按当前已知利率前瞻推算）", usd(y.equityUsd), complete ? tr("预估日收益") : tr("日收益小计"), usd(daily)),
         ),
       );
     }
@@ -533,25 +534,25 @@ export function renderPanel(result: EnrichResult, history?: Readonly<HistoryList
     details.className = 'proto timeline';
 
     const summary = document.createElement('summary');
-    summary.appendChild(el('span', 'name', `近期动向(${timeline.rows.length} 条)`));
+    summary.appendChild(el('span', 'name', tr("近期动向({0} 条)", timeline.rows.length)));
     const shownEntries = [...history.entries]
       .sort((a, b) => b.timeAt - a.timeAt)
       .slice(0, timeline.rows.length);
     const flow = summarizeFlows(shownEntries);
     const flowLines = flow.projects.map((item) => {
       if (item.pricedLegs === 0 && item.unpricedLegs > 0) {
-        return `${item.project ?? '未标注协议'}：净流向未知(${item.unpricedLegs} 条腿未计价)`;
+        return tr("{0}：净流向未知({1} 条腿未计价)", item.project ?? tr("未标注协议"), item.unpricedLegs);
       }
-      const direction = item.netUsd > 0 ? '净流入' : item.netUsd < 0 ? '净流出' : '净流向持平';
+      const direction = item.netUsd > 0 ? tr("净流入") : item.netUsd < 0 ? tr("净流出") : tr("净流向持平");
       const amount = item.netUsd === 0 ? usd(0) : usd(Math.abs(item.netUsd));
-      const scope = item.unpricedLegs > 0 ? '已计价腿' : '';
-      const omitted = item.unpricedLegs > 0 ? `(另 ${item.unpricedLegs} 条腿未计价)` : '';
-      return `${item.project ?? '未标注协议'}：${scope}${direction} ${amount}${omitted}`;
+      const scope = item.unpricedLegs > 0 ? tr("已计价腿") : '';
+      const omitted = item.unpricedLegs > 0 ? tr("(另 {0} 条腿未计价)", item.unpricedLegs) : '';
+      return `${item.project ?? tr("未标注协议")}：${scope}${direction} ${amount}${omitted}`;
     });
     if (flowLines.length > 0) {
       const tooltip = flowLines.join('\n');
       summary.title = tooltip;
-      summary.setAttribute('aria-label', `近期动向 ${timeline.rows.length} 条；${flowLines.join('；')}`);
+      summary.setAttribute('aria-label', tr("近期动向 {0} 条；{1}", timeline.rows.length, flowLines.join('；')));
     }
     details.appendChild(summary);
 

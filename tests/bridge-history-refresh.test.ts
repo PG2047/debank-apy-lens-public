@@ -32,6 +32,10 @@ test('project_list first, history later, and no page DOM mutation still renders 
   installGlobal('MutationObserver', page.window.MutationObserver);
   installGlobal('getComputedStyle', () => ({ position: 'static' }));
   installGlobal('browser', {
+    storage: {
+      sync: { get: async () => ({ 'dal:language': 'zh-CN' }) },
+      onChanged: { addListener() {}, removeListener() {} },
+    },
     runtime: {
       sendMessage: async (message: unknown) => (message as { type?: string }).type === 'dal:enrich'
         ? { cards: [], skippedProtocols: 0, generatedAt: 1 }

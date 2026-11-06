@@ -1,4 +1,4 @@
-# EVM 部署覆盖（v0.5.15）
+# EVM 部署覆盖（v0.6.0）
 
 [English](EVM_DEPLOYMENTS.md) · [中文](EVM_DEPLOYMENTS.zh-CN.md)
 
@@ -18,12 +18,19 @@ X Layer 的官方 ID 是 `xlayer`，EVM chainId 是 `196`。旧版没有该映�
 | Spark / Sky | SparkLend 官方 Ethereum/Gnosis 来源、全链 Spark Savings Llama 数据；Sky exact share-token/farm 链上读取；已有来源未发布的产品保持未知 |
 | Ethena | 官方 Key Addresses 中的 21 条 EVM 链 sUSDe 地址；覆盖通用 OFT、zkSync 与 Tempo 特例；sENA 仍限 Ethereum 的精确产品 |
 | Falcon | 官方目前只列 Ethereum 的 sUSDf；BNB/XDC 的 USDf 不套用 sUSDf 质押 APY |
+| Pendle | 官方分页目录中的精确 PT 市场；本次观察到 13 个 chain ID，含已到期市场 |
+| Curve | 16 条 EVM 主网的池基础收益；须匹配精确 pool/LP/gauge 和资产 |
+| Beefy | 官方目录与 DeBank 链表内的活跃 standard 金库；本次观察到 12 条活跃链 |
+| Yearn | Ethereum、Optimism、Polygon、Base、Arbitrum、Katana 的精确金库 |
+| Lido | Ethereum、Optimism、Arbitrum、Base 的精确 stETH/wstETH 产品 |
+| Rocket Pool / ether.fi | 分别限 Ethereum rETH / eETH、weETH |
 | Uniswap V3 / V4 | 官方部署 feed 中全部 31 / 20 条主网的成对合约地址 |
 | Pancake V3 | 官方地址页的全部 9 条 EVM 主网，含 zkSync 特例、opBNB、Monad、Robinhood |
 
 这表示支持已有产品类型在各 EVM 部署上的查询与显示，不表示每个协议都部署在每条链上。
-仍不新增 Aave V2、Pancake Infinity、Curve 或 Pendle 适配器；LP 仍只显示区间与费率档，
-不估算手续费 APY。来源失败、缺失奖励字段和身份不明仍显示 `unknown`，不当作 0%。
+仍不支持 Aave V2、Pancake Infinity。NFT LP 路线只显示区间与费率档，不估算其手续费 APY。
+Curve 池收益及 Pendle PT 属于独立利率路线，详见[产品边界](PROTOCOLS.zh-CN.md)及[剩余缺口](PROTOCOL_GAPS.zh-CN.md)。
+来源失败、缺失奖励字段和身份不明仍显示 `unknown`，不当作 0%。
 
 Uniswap 的 Boba、Filecoin、Moonbeam 三条历史部署仍保留完整地址与 RPC；DeBank 当前目录
 没有这三条链，因此当前页面无法展示它们。不能为此猜测 DeBank 内部 ID。
@@ -55,7 +62,7 @@ Pancake 和固定 share-token 产品从各自官方地址页核对后更新，�
 
 链与合约目录是 2026-09-21 的快照。离线测试验证路由、权限与解码逻辑，不能证明每个公共 RPC 当前可用。
 公开版不含个人 API Key。公共 RPC 的限流或历史查询限制会使部分数据保持未知。
-构建后在普通 Chrome 标签页重载扩展并重新打开 DeBank，确认状态条显示 `v0.5.15`。
+构建后在普通 Chrome 标签页重载扩展并重新打开 DeBank，确认状态条显示 `v0.6.0`。
 
 ## 完整链目录
 

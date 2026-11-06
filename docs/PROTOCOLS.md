@@ -2,9 +2,9 @@
 
 [English](PROTOCOLS.md) · [中文](PROTOCOLS.zh-CN.md)
 
-Version: 0.5.15. Source: `utils/adapters/registry.ts`, its adapters, and the deployment directory. This is code coverage, not a claim that every live market has been verified.
+Version: 0.6.0. Source: `utils/adapters/registry.ts`, its adapters, and the deployment directory. This is code coverage, not a claim that every live market has been verified.
 
-**12 rate routes + 3 LP routes.** Routes are not protocol brands. The chain directory contains 73 EVM chains (2026-09-21 snapshot); this does not mean that every protocol is supported on every chain.
+**19 rate routes + 3 LP routes.** Routes are not protocol brands. The chain directory contains 73 EVM chains (2026-09-21 snapshot); this does not mean that every protocol is supported on every chain.
 
 | Route ID | Protocol / product | Type |
 |---|---|---|
@@ -20,6 +20,13 @@ Version: 0.5.15. Source: `utils/adapters/registry.ts`, its adapters, and the dep
 | `fluid` | Fluid | Rate |
 | `ethena` | Ethena | Rate |
 | `falcon` | Falcon Finance | Rate |
+| `pendle` | Pendle V2 PT | Rate |
+| `curve` | Curve | Rate |
+| `beefy` | Beefy | Rate |
+| `yearn` | Yearn | Rate |
+| `lido` | Lido | Rate |
+| `rocket-pool` | Rocket Pool | Rate |
+| `etherfi` | ether.fi | Rate |
 | `uniswap-v3` | Uniswap V3 | LP range |
 | `uniswap-v4` | Uniswap V4 | LP range |
 | `pancake-v3` | PancakeSwap V3 | LP range |
@@ -110,6 +117,56 @@ Version: 0.5.15. Source: `utils/adapters/registry.ts`, its adapters, and the dep
 - **Rewards / display:** Extra incentives are not exhaustively covered; no inferred all-rewards total.
 - **Limits:** USDf on BNB Chain or XDC does not inherit sUSDf yield.
 
+### Pendle V2 — `pendle`
+
+- **Products:** PT holdings with an exact PT address. All pages of the official market catalog are read; chain and optional market identity must match.
+- **Source:** [Pendle Core API](https://docs.pendle.finance/pendle-v2-dev/Backend/ApiOverview), `details.impliedApy`, in decimal units. The catalog had 13 chain IDs on 2026-11-06: 1, 10, 56, 143, 146, 196, 999, 4663, 5000, 8453, 9745, 42161, 80094.
+- **Meaning:** Current market yield to maturity, not the yield locked at the user's purchase price. Future discount yield is zero after expiry. Token-price changes are not forecast.
+- **Limits:** No YT, LP, Boros, points, or boosted incentives. A market address with only an underlying-token leg cannot distinguish PT from LP and stays unknown. Catalog failures or the 2,000-market request budget leave data unknown.
+
+### Curve — `curve`
+
+- **Products:** Exact pool, LP-token, or gauge positions. A supplied token must be an identified pool constituent, underlying constituent, LP token, or gauge token.
+- **Source:** [Curve API](https://api.curve.finance/v1/documentation), pool catalog plus `getSubgraphData.latestWeeklyApy` (percent). This is pool-wide base APY, including fee yield and any intrinsic yield already included by Curve.
+- **Chains:** Ethereum, Optimism, BNB Chain, Gnosis, Polygon, X Layer, Fraxtal, zkSync Era, HyperEVM, Kava, Mantle, Base, Arbitrum, Celo, Avalanche, Sonic. Missing pool-rate rows stay unknown.
+- **Limits:** CRV boost, personal gauge rewards, external incentives, crvUSD borrowing, and Curve Lending are not calculated. Gauge rewards stay unknown even when base APY is available. New Curve Core-only chains outside this list are not covered. This pool API route is separate from NFT range routes.
+
+### Beefy — `beefy`
+
+- **Products:** Active standard vaults, matched by chain and vault/receipt address. The same vault APY applies proportionally to the supplied components of that exact vault.
+- **Source:** [Beefy API](https://docs.beefy.finance/developer-documentation/beefy-api), `/vaults` and `/apy/breakdown.totalApy` (decimal).
+- **Meaning:** Official net composite vault APY. Compounded strategy rewards and trading yield are already included; neither component rates nor intrinsic token yield are added again.
+- **Chains:** Dynamic official catalog intersected with the bundled DeBank directory. On 2026-11-06, active standard vaults existed on Ethereum, Avalanche, Base, BNB Chain, Fraxtal, Robinhood, Monad, Optimism, Arbitrum, MegaETH, Arc, and Plasma.
+- **Limits:** Retired vaults, governance vaults, borrowing, and separate Boost/staking contracts are not supported. External rewards remain unknown. A deposit token alone does not identify a vault.
+
+### Yearn — `yearn`
+
+- **Products:** Exact V2/V3 vaults, including verified deposit-token and LP-constituent legs.
+- **Source:** [yDaemon](https://docs.yearn.fi/developers/building-on-yearn), exact vault endpoint. APY is `(todaySharePrice / weekAgoSharePrice)^(365/7) - 1`; both observations must exist and be positive. Negative observed returns are preserved.
+- **Chains:** Ethereum, Optimism, Polygon, Base, Arbitrum, Katana.
+- **Meaning:** Annualized seven-day net share growth, including harvested strategy rewards. This is historical performance, not a guaranteed forward rate.
+- **Limits:** Retired vaults, missing history, separate staking/Boost wrappers, and stYFI are not covered. External staking rewards stay unknown. No fallback to a same-token vault or a different forward-APR field.
+
+### Lido — `lido`
+
+- **Products:** Canonical stETH/wstETH protocol positions. Exact token addresses come from the [official deployments](https://docs.lido.fi/deployed-contracts/).
+- **Source:** [Lido seven-day SMA APR](https://docs.lido.fi/integrations/api/). Its net staking APR is converted to an explicitly labeled daily-compounding APY estimate: `(1 + APR/365)^365 - 1`, with APR in decimal units.
+- **Chains:** Ethereum stETH/wstETH; Optimism stETH/wstETH; Arbitrum wstETH; Base wstETH. Bridged tokens use the same underlying Ethereum staking yield.
+- **Limits:** No arbitrary wrappers, stVault-owner economics, withdrawal-queue yield, or ecosystem incentives. ETH alone is insufficient; it must belong to an exact supported staking product.
+
+### Rocket Pool — `rocket-pool`
+
+- **Products:** Ethereum canonical rETH protocol positions, verified against the [official contract](https://docs.rocketpool.net/liquid-staking/via-l1.html).
+- **Source:** `https://api.rocketpool.net/api/apr`, `yearlyAPR` in percent; the same labeled daily-compounding conversion as Lido.
+- **Limits:** No node/minipool/megapool operator returns, RPL rewards, or bridged rETH on other chains. Ordinary ETH is not treated as rETH.
+
+### ether.fi — `etherfi`
+
+- **Products:** Ethereum eETH/weETH protocol positions.
+- **Source:** The [official weETH contract](https://github.com/etherfi-protocol/smart-contracts), `getRate()` now and approximately 24 hours earlier, through the existing onchain rate-difference engine.
+- **Meaning:** Annualized observed base share growth; eETH and weETH share the same underlying yield. No duplicate intrinsic-yield addition.
+- **Limits:** Additional restaking rewards stay unknown. Points, eBTC, Liquid vaults, withdrawal requests, and bridged versions are not supported. Missing historical RPC state leaves the base rate unknown.
+
 ### Uniswap V3 — `uniswap-v3`
 
 - **Products:** NFT concentrated-liquidity positions.
@@ -136,9 +193,11 @@ Version: 0.5.15. Source: `utils/adapters/registry.ts`, its adapters, and the dep
 - Net APY uses equity (supply minus borrowing) as its denominator. APY and APR are labeled separately. Daily yield is an estimate at current rates, not realized income.
 - Unknown is not zero. Rewards use five states: numeric-known, confirmed-zero, unknown, non-annualizable, and not-applicable. Incomplete coverage is shown as a subtotal.
 - Independent positions or protocols below $100 net value are skipped before queries. Unknown base/reward exposure above 1% of gross supply plus borrowing prevents a complete net APY; every child position must also satisfy coverage.
-- LP fee APY and external incentive APY are excluded from daily yield and the top-level gap count. Official DEX yield components in Fluid smart vaults use separate product logic.
+- Uniswap V3/V4 and PancakeSwap V3 fee APY and external incentive APY are excluded from daily yield and the top-level gap count. Official DEX yield components in Fluid smart vaults use separate product logic.
 - Merkl supplies cross-protocol reward and claimable data. DeFiLlama supplies limited fallback data. Neither adds a generic protocol adapter.
-- No routes exist for Curve, Pendle, Aave V2, Compound V2, Uniswap V2, or Pancake V2/Infinity. Unsupported protocols are skipped; rates are not guessed from ticker symbols.
+- No routes exist for Aave V2, Compound V2, Uniswap V2, or Pancake V2/Infinity. See the [remaining mainstream gaps](PROTOCOL_GAPS.md). Unsupported protocols are skipped; rates are not guessed from ticker symbols.
 - Public RPCs can rate-limit or lack historical state. API, DeBank DOM, or deployment changes can leave data unknown. Offline tests do not prove live availability.
 
 See [EVM deployments](EVM_DEPLOYMENTS.md) for the full chain list and [data sources](DATA_SOURCES.md) for calculation and reward rules.
+
+New routes enrich existing DeBank protocol positions. They do not create staking cards for ordinary wallet token balances.

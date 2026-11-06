@@ -2,7 +2,7 @@
 
 [English](PRIVACY.md) · [中文](PRIVACY.zh-CN.md)
 
-适用于公开版 DeBank APY Lens v0.5.15。更新日期：2026-11-06。
+适用于公开版 DeBank APY Lens v0.6.0。更新日期：2026-11-06。
 
 ## 扩展读取的数据
 
@@ -18,7 +18,9 @@
 项目没有自营后端、分析统计或广告端点。
 
 API 来源包括 Aave、Morpho、Merkl、DeFiLlama、Lista、Block Analitica、Sky Chainlog、Dolomite、
-Compound、Venus、Fluid、Ethena 和 Falcon。默认公共 RPC 与支持用户填写的 Alchemy 主机见
+Compound、Venus、Fluid、Ethena、Falcon、Pendle、Curve、Beefy、Yearn（yDaemon）、Lido 和 Rocket Pool。
+ether.fi 使用公共 Ethereum RPC 读取 weETH 合约。新增的目录/利率端点无需钱包地址；Yearn 请求包含金库合约地址。
+默认公共 RPC 与支持用户填写的 Alchemy 主机见
 [`utils/rpc-config.ts`](utils/rpc-config.ts)；完整主机权限见 [`utils/hosts.ts`](utils/hosts.ts)。
 
 请求可能包含 chain ID、token/合约地址、market ID、NFT ID 及当前查看的钱包或代理地址。

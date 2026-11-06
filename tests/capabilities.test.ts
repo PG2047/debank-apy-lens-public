@@ -13,8 +13,8 @@ import {
 test('every registered rate adapter and LP route has an explicit reward capability', () => {
   const routes = REGISTERED_ROUTES.map((registration) => registration.route);
   assert.equal(new Set(routes).size, routes.length);
-  assert.equal(REGISTERED_ROUTES.length, 15);
-  assert.equal(RATE_ROUTES.length, 12);
+  assert.equal(REGISTERED_ROUTES.length, 22);
+  assert.equal(RATE_ROUTES.length, 19);
   assert.equal(LP_ROUTES.length, 3);
   assert.deepEqual(ADAPTERS, RATE_ROUTES.map(({ adapter }) => adapter));
   assert.equal(new Set(ADAPTERS).size, ADAPTERS.length);
@@ -57,6 +57,13 @@ test('every registered rate adapter and LP route has an explicit reward capabili
       ['fluid', 'Fluid fToken/vault rewards plus Smart Collateral/Debt DEX trading yield', 'fToken or vault address + asset + leg', ['fToken-supply', 'vault-supply', 'vault-borrow'], 'unknown'],
       ['ethena', 'Official sUSDe yield only; Ethena points and eligibility metadata are policy-excluded', 'sUSDe share token or ENA underlying + sENA product identity', [], 'not-applicable'],
       ['falcon', 'Official share-token base yield; extra incentives not exhaustive', 'sUSDf share token', [], 'non-annualizable'],
+      ['pendle', 'Official PT current implied APY; LP/YT rewards and points excluded', 'chain + PT token + optional exact market; expiry gate', [], 'not-applicable'],
+      ['curve', 'Official pool base APY; personal gauge boost and incentives unknown', 'chain + pool/LP/gauge address + constituent token', [], 'unknown'],
+      ['beefy', 'Official net composite vault APY; external boosts unknown', 'chain + active standard vault address', [], 'unknown'],
+      ['yearn', 'Official seven-day share growth; external staking rewards unknown', 'chain + vault address + deposit/share/constituent token', [], 'unknown'],
+      ['lido', 'Official stETH seven-day APR converted to estimated APY', 'chain + canonical stETH/wstETH token', [], 'not-applicable'],
+      ['rocket-pool', 'Official rETH APR converted to estimated APY', 'Ethereum canonical rETH token', [], 'not-applicable'],
+      ['etherfi', 'Onchain weETH share growth; additional restaking rewards unknown', 'Ethereum canonical eETH/weETH token', [], 'unknown'],
       ['uniswap-v3', 'Fee APY and external incentive APY are policy-excluded', 'pool + NFT + ticks + fee tier', [], 'not-applicable'],
       ['uniswap-v4', 'Fee APY and external incentive APY are policy-excluded', 'pool id + NFT + ticks + hooks', [], 'not-applicable'],
       ['pancake-v3', 'Fee APY and external incentive APY are policy-excluded', 'pool + NFT + ticks + fee tier', [], 'not-applicable'],

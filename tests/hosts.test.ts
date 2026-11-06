@@ -32,6 +32,12 @@ test('every protocol data origin used by adapters is explicitly approved', () =>
     'https://api.fluid.instadapp.io',
     'https://ethena.fi',
     'https://api.falcon.finance',
+    'https://api-v2.pendle.finance',
+    'https://api.curve.finance',
+    'https://api.beefy.finance',
+    'https://ydaemon.yearn.fi',
+    'https://eth-api.lido.fi',
+    'https://api.rocketpool.net',
   ]) {
     assert.ok(origins.has(origin), `missing host permission for ${origin}`);
   }

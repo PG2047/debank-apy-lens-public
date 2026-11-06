@@ -1,5 +1,12 @@
 // Chinese source messages and their English translations. Parameters use {0}, {1}, ...
 export const EN_MESSAGES: Readonly<Record<string, string>> = {
+  "pendle官方(PT当前到期APY)": "Pendle official (PT current implied APY)",
+  "curve官方(池7日基础APY)": "Curve official (7-day pool base APY)",
+  "beefy官方(金库综合APY)": "Beefy official (net composite vault APY)",
+  "yearn官方(7日份额增长APY)": "Yearn official (7-day share-growth APY)",
+  "lido官方(7日APR折算APY)": "Lido official (7-day APR converted to APY)",
+  "rocket-pool官方(APR折算APY)": "Rocket Pool official (APR converted to APY)",
+  "etherfi链上(24小时份额增长APY)": "ether.fi onchain (24-hour share-growth APY)",
   "至少一个数据源、协议或奖励覆盖不完整": "At least one data source, protocol, or reward is incomplete",
   "正在中止当前 APY 请求": "Stopping the current APY request",
   "当前 APY 请求已停止；页面与诈骗交易过滤仍正常运行": "APY request stopped; the page and scam filter are still active",

@@ -22,21 +22,21 @@
 - 出借流动性提示，以及可刷新、停止的状态栏。
 - 隐藏 DeBank 自身明确标为 scam 的交易；其他普通 Failed 交易保持可见。
 
-随包目录识别 73 条 EVM 链（2026-09-21 快照）。12 条利率路线和 3 条 LP 路线只覆盖指定产品，
+随包目录识别 73 条 EVM 链（2026-09-21 快照）。19 条利率路线和 3 条 LP 路线只覆盖指定产品，
 不代表每个协议在每条链均受支持。逐项产品、数据源、奖励和限制见 [完整协议指南](docs/PROTOCOLS.zh-CN.md)，
 计算规则见 [数据来源](docs/DATA_SOURCES.zh-CN.md)，完整链表见 [部署目录](docs/EVM_DEPLOYMENTS.zh-CN.md)。
-Curve 和 Pendle 尚未支持。
+新增 Pendle PT、Curve 池基础收益、Beefy、Yearn、Lido、Rocket Pool 和 ether.fi，具体产品边界见协议指南。其他主流协议见[覆盖缺口清单](docs/PROTOCOL_GAPS.zh-CN.md)。
 
 ## 在另一台电脑安装
 
 安装 Release ZIP 不需要 Node.js 或编译。
 
 1. 从 [最新 Release](https://github.com/PG2047/debank-apy-lens-public/releases/latest)
-   下载 `debank-apy-lens-0.5.15-chrome.zip`，不要下载 GitHub 自动生成的 Source code 包。
+   下载 `debank-apy-lens-0.6.0-chrome.zip`，不要下载 GitHub 自动生成的 Source code 包。
 2. 解压到长期保留的文件夹。
 3. 桌面 Chrome 打开 `chrome://extensions`，开启「开发者模式」。
 4. 点「加载已解压的扩展程序」，选择直接包含 `manifest.json` 的文件夹。
-5. 关闭并重新打开 DeBank 标签页，确认页面状态条显示 `v0.5.15`。
+5. 关闭并重新打开 DeBank 标签页，确认页面状态条显示 `v0.6.0`。
 
 不要删除解压目录。更新时用新版替换该目录中的文件，在扩展卡片点「重新加载」，再关闭并重新打开 DeBank 标签页。
 此安装方式需要手动更新；以页面状态条中的版本号判断实际运行版本。
@@ -92,3 +92,5 @@ npm run zip
 
 许可证为 [MIT](LICENSE)，依赖保留各自许可证。收益为估算，会随时间变化，不构成投资建议。
 离线构建成功不能证明所有实时 API、RPC 或 DeBank 页面仍然可用。
+
+[主流协议缺口清单](docs/PROTOCOL_GAPS.zh-CN.md) · [English coverage gaps](docs/PROTOCOL_GAPS.md)

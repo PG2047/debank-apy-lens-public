@@ -30,16 +30,16 @@ Browser extension metadata follows Chrome’s own language.
 - Hide transactions that DeBank itself marks as scam. Other failed transactions
   remain visible.
 
-The bundled directory identifies 73 EVM chains as of 2026-09-21. Twelve rate
+The bundled directory identifies 73 EVM chains as of 2026-09-21. Nineteen rate
 adapters and three LP routes cover selected products, not every protocol on
 every chain. See [full protocol guide](docs/PROTOCOLS.md), [data sources](docs/DATA_SOURCES.md), and
-[deployment coverage](docs/EVM_DEPLOYMENTS.md). Curve and Pendle are not supported.
+[deployment coverage](docs/EVM_DEPLOYMENTS.md). Pendle PT, Curve pool base yield, Beefy, Yearn, Lido, Rocket Pool, and ether.fi are now supported within the product limits in that guide. See the [remaining protocol gaps](docs/PROTOCOL_GAPS.md).
 
 ## Install on another computer
 
 No Node.js installation or compilation is needed for a release ZIP.
 
-1. Download `debank-apy-lens-0.5.15-chrome.zip` from
+1. Download `debank-apy-lens-0.6.0-chrome.zip` from
    [Releases](https://github.com/PG2047/debank-apy-lens-public/releases/latest).
    Use the extension ZIP, not GitHub's automatic source-code archive.
 2. Extract it to a folder you will keep.
@@ -47,7 +47,7 @@ No Node.js installation or compilation is needed for a release ZIP.
 4. Select **Load unpacked**, then select the folder that directly contains
    `manifest.json`.
 5. Close any existing DeBank tabs and open a portfolio page again. The extension
-   status bar should show `v0.5.15`.
+   status bar should show `v0.6.0`.
 
 Keep the extracted folder. Unpacked extensions need manual updates. For an
 update, replace the files in that folder with the new release, click **Reload**
@@ -120,3 +120,5 @@ installation packages are not included.
 [MIT](LICENSE). Dependencies retain their own licenses. Estimated yields can
 change and are not investment advice. A successful offline build does not prove
 that every live API, RPC endpoint, or DeBank page still works.
+
+[Mainstream protocol gaps](docs/PROTOCOL_GAPS.md) · [中文缺口清单](docs/PROTOCOL_GAPS.zh-CN.md)

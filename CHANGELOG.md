@@ -3,6 +3,30 @@
 [English](CHANGELOG.md) · [中文](CHANGELOG.zh-CN.md)
 
 
+## 0.6.0 — 2026-11-06
+
+- Add seven rate routes: Pendle V2 PT, Curve pool base yield, Beefy standard vaults,
+  Yearn V2/V3 vaults, Lido, Rocket Pool, and ether.fi base staking yield.
+- Expand the registry from 12 to 19 rate routes; retain the three NFT LP range routes.
+- Match chain and product addresses. Preserve expiry handling, unknown rewards,
+  failed-chain isolation, and composite-yield accounting without double counting.
+- Add six exact API hosts. No personal keys, backend, or wallet connection is required.
+- Add English/Chinese protocol details, formulas, mainnet coverage, and a remaining
+  mainstream-gap inventory. New source labels work in both interface languages.
+
+Validation: 257 tests and type checking passed. Fresh public responses were replayed
+through the real adapters for 40 protocol/chain samples across 17 mainnets. Synthetic
+DeBank input also passed the real parsing, routing, and aggregation path. This is not
+an acceptance test against every live DeBank page.
+
+Production packaging and bridge-bundle checks passed. The bilingual ZIP contains
+no dummy build key, configured credential patterns, or personal filesystem paths.
+
+The ether.fi adapter passed mocked RPC tests, but the live default public RPC returned
+HTTP 403 on a contract read; no live ether.fi yield was verified in this environment.
+A working historical Ethereum RPC is required. Additional restaking rewards remain
+unknown. Euler remains unsupported: its public API returned HTTP 403 here as well.
+
 ## 0.5.15 — 2026-11-06
 
 - Add English and Simplified Chinese across settings, yield badges, tooltips,

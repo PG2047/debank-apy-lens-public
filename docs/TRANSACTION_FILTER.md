@@ -2,7 +2,7 @@
 
 [English](TRANSACTION_FILTER.md) · [中文](TRANSACTION_FILTER.zh-CN.md)
 
-Filter contract: v0.3.5, retained in extension v0.5.15.
+Filter contract: v0.3.5, retained in extension v0.6.0.
 Sources: `entrypoints/bridge.content.ts` and `utils/transaction-filter.ts`.
 
 ## Purpose and boundaries

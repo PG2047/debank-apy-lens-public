@@ -2,7 +2,7 @@
 
 [English](PRIVACY.md) · [中文](PRIVACY.zh-CN.md)
 
-Applies to the public DeBank APY Lens extension, version 0.5.15.
+Applies to the public DeBank APY Lens extension, version 0.6.0.
 Last updated: 2026-11-06.
 
 ## Data read by the extension
@@ -24,7 +24,10 @@ blockchain RPC providers to calculate yields, rewards, and position ranges.
 It has no project-operated backend and no analytics or advertising endpoint.
 
 The configured API providers include Aave, Morpho, Merkl, DeFiLlama, Lista,
-Block Analitica, Sky Chainlog, Dolomite, Compound, Venus, Fluid, Ethena, and Falcon.
+Block Analitica, Sky Chainlog, Dolomite, Compound, Venus, Fluid, Ethena, Falcon,
+Pendle, Curve, Beefy, Yearn (yDaemon), Lido, and Rocket Pool. ether.fi uses public
+Ethereum RPC calls to the weETH contract. The new catalogs/rate endpoints do not
+need a wallet address; Yearn requests include the vault contract address.
 Default public RPC hosts and supported user-configured Alchemy hosts are listed
 in [`utils/rpc-config.ts`](utils/rpc-config.ts). The full host permission list is
 [`utils/hosts.ts`](utils/hosts.ts).

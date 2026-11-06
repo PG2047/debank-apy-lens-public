@@ -1,4 +1,4 @@
-# EVM deployment coverage — v0.5.15
+# EVM deployment coverage — v0.6.0
 
 [English](EVM_DEPLOYMENTS.md) · [中文](EVM_DEPLOYMENTS.zh-CN.md)
 
@@ -18,14 +18,21 @@ does not prove support for every protocol on that chain.
 | Spark / Sky | SparkLend Ethereum/Gnosis; matching Spark Savings fallback data; exact Sky savings/farm reads. |
 | Ethena | Token table with 21 chain IDs, including OFT, zkSync, and Tempo variants; sENA is an exact Ethereum product. |
 | Falcon | Exact Ethereum sUSDf only. BNB/XDC USDf is not a substitute. |
+| Pendle | PT markets in the paginated official catalog; 13 chain IDs observed, including expired markets. |
+| Curve | Pool base-yield route on 16 EVM mainnets; exact pool/LP/gauge and token required. |
+| Beefy | Active standard vaults from the official catalog and known DeBank chains; 12 active chains observed. |
+| Yearn | Exact vaults on Ethereum, Optimism, Polygon, Base, Arbitrum, Katana. |
+| Lido | Exact stETH/wstETH products on Ethereum, Optimism, Arbitrum, Base. |
+| Rocket Pool / ether.fi | Ethereum rETH / eETH and weETH, respectively. |
 | Uniswap V3 / V4 | Complete manager/factory or manager/StateView pairs for 31 / 20 mainnets in the snapshot. |
 | Pancake V3 | Nine mainnets, including separate zkSync addresses, opBNB, Monad, and Robinhood. |
 
 Boba, Filecoin, and Moonbeam Uniswap deployments and RPCs are retained, but those
 chains are absent from the bundled DeBank directory. They cannot appear through
-its current page route. Movement is a Move network, not EVM. Aave V2, Pancake
-Infinity, Curve, and Pendle have no adapter. LP routes show ranges and fee-tier
-metadata; fee and incentive APY are excluded.
+its current page route. Movement is a Move network, not EVM. Aave V2 and Pancake
+Infinity have no adapter. NFT LP routes show ranges and fee-tier metadata; their
+fee and incentive APY are excluded. Curve pool yield and Pendle PT are separate
+rate routes. See [product limits](PROTOCOLS.md) and [remaining gaps](PROTOCOL_GAPS.md).
 
 ## Sources and updates
 
@@ -55,7 +62,7 @@ against official addresses, not symbols.
 This is a dated snapshot. Offline tests check routing, permissions, and decoding;
 they do not prove that all current endpoints work. Public RPC limits or missing
 historical state can leave data unknown. Reload the extension, reopen DeBank,
-and check the `v0.5.15` status marker for live verification.
+and check the `v0.6.0` status marker for live verification.
 
 ## Full chain directory
 

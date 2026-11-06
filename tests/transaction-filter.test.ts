@@ -307,7 +307,7 @@ test('static entry contract hosts the isolated DOM engine in bridge only', () =>
   const retiredEntryUrl = new URL('../entrypoints/scam-filter.content.ts', import.meta.url);
   const source = readFileSync(bridgeUrl, 'utf8');
   const filterSource = readFileSync(filterUrl, 'utf8');
-  const moduleMarkerIndex = source.indexOf('[APY Lens] bridge module build 0.5.15: evaluated');
+  const moduleMarkerIndex = source.indexOf('[APY Lens] bridge module build 0.6.0: evaluated');
   const definitionIndex = source.indexOf('export default defineContentScript');
   assert.match(source, /registerTransactionScamFilterCleanup/);
   assert.match(source, /startTransactionScamFilterSafely/);

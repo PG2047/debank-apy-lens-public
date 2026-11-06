@@ -45,7 +45,7 @@ LP 合约、公共 RPC 与 MV3 主机权限分别有完整性测试；Ethena 使
 
 ## 全路线能力矩阵
 
-代码级矩阵在 `utils/adapters/capabilities.ts`，`tests/capabilities.test.ts` 强制覆盖全部 12 个 rate adapters 与 3 个 LP routes。
+代码级矩阵在 `utils/adapters/capabilities.ts`，`tests/capabilities.test.ts` 强制覆盖全部 19 个 rate adapters 与 3 个 LP routes。
 
 | 路线 | 基础收益来源 | 奖励来源与优先级 | 精确身份 | 无法证明时 |
 |---|---|---|---|---|
@@ -219,3 +219,16 @@ Chrome 会缓存 MV3 service worker；只刷新页面不足以换掉旧 worker�
 
 中英文使用相同数值和计算规则。语言选择保存在 Chrome sync storage。切换只重绘缓存结果，不重新请求收益。
 来源、错误、奖励说明在展示层翻译；数据缓存和协议身份保持稳定。新增文案与协议路线必须同步更新两种语言。
+
+## v0.6.0 新增协议
+
+- Pendle：官方分页市场目录；精确 PT 身份、当前到期 APY 和到期处理。排除 LP/YT 及积分。
+- Curve：精确 pool/LP/gauge 及组成币；官方七日池基础 APY。个人 gauge 奖励保持未知。
+- Beefy：精确活跃 standard 金库；官方净综合 APY，不重复叠加策略奖励或底层收益。
+- Yearn：精确金库及资产；七日净份额增长按 `(今日 / 七日前)^(365/7) - 1` 年化。
+- Lido/Rocket Pool：精确 canonical 份额币及链；官方 APR 按每日复投折算，并标注为估算值。
+- ether.fi：精确 Ethereum eETH/weETH；使用已有 24 小时 RPC 引擎读取 weETH `getRate()` 的当前与历史值。额外再质押奖励保持未知。
+
+新增 API 目录只在内存缓存五分钟，最多 64 项。Pendle 读取全部分页，市场请求预算为 2,000。
+Curve 与 Beefy 全目录明确使用 8 MiB 响应预算，其余新增端点沿用 2 MiB 限制。
+现有请求并发数和卡片超时限制继续生效。链和产品边界以[协议指南](PROTOCOLS.zh-CN.md)为准。

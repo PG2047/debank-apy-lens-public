@@ -6,6 +6,10 @@ import { aave4Adapter } from './aave4';
 import { morphoAdapter } from './morpho';
 import { listaAdapter } from './lista';
 import { skyAdapter } from './sky';
+import { pendleAdapter } from './pendle';
+import { curveAdapter } from './curve';
+import { beefyAdapter, yearnAdapter } from './vaults';
+import { lidoAdapter, rocketPoolAdapter, etherfiAdapter } from './staking';
 import { makeLlamaAdapter } from './defillama';
 import {
   withFallback,
@@ -62,7 +66,7 @@ function defineRoutes<const T extends readonly RegisteredRoute[]>(routes: T): T 
   return routes;
 }
 
-/** Single typed source of truth for all 12 rate adapters and all 3 LP routes. */
+/** Single typed source of truth for all 19 rate adapters and all 3 LP range routes. */
 export const REGISTERED_ROUTES = defineRoutes([
   {
     route: 'aave-v3',
@@ -194,6 +198,62 @@ export const REGISTERED_ROUTES = defineRoutes([
       exactIdentity: 'sUSDf share token',
       zeroProofRoles: [],
       unsupportedPolicy: 'non-annualizable',
+    },
+  },
+  {
+    route: 'pendle', kind: 'rate', adapter: pendleAdapter,
+    capability: {
+      rewardTruth: 'Official PT current implied APY; LP/YT rewards and points excluded',
+      exactIdentity: 'chain + PT token + optional exact market; expiry gate',
+      zeroProofRoles: [], unsupportedPolicy: 'not-applicable',
+    },
+  },
+  {
+    route: 'curve', kind: 'rate', adapter: curveAdapter,
+    capability: {
+      rewardTruth: 'Official pool base APY; personal gauge boost and incentives unknown',
+      exactIdentity: 'chain + pool/LP/gauge address + constituent token',
+      zeroProofRoles: [], unsupportedPolicy: 'unknown',
+    },
+  },
+  {
+    route: 'beefy', kind: 'rate', adapter: beefyAdapter,
+    capability: {
+      rewardTruth: 'Official net composite vault APY; external boosts unknown',
+      exactIdentity: 'chain + active standard vault address',
+      zeroProofRoles: [], unsupportedPolicy: 'unknown',
+    },
+  },
+  {
+    route: 'yearn', kind: 'rate', adapter: yearnAdapter,
+    capability: {
+      rewardTruth: 'Official seven-day share growth; external staking rewards unknown',
+      exactIdentity: 'chain + vault address + deposit/share/constituent token',
+      zeroProofRoles: [], unsupportedPolicy: 'unknown',
+    },
+  },
+  {
+    route: 'lido', kind: 'rate', adapter: lidoAdapter,
+    capability: {
+      rewardTruth: 'Official stETH seven-day APR converted to estimated APY',
+      exactIdentity: 'chain + canonical stETH/wstETH token',
+      zeroProofRoles: [], unsupportedPolicy: 'not-applicable',
+    },
+  },
+  {
+    route: 'rocket-pool', kind: 'rate', adapter: rocketPoolAdapter,
+    capability: {
+      rewardTruth: 'Official rETH APR converted to estimated APY',
+      exactIdentity: 'Ethereum canonical rETH token',
+      zeroProofRoles: [], unsupportedPolicy: 'not-applicable',
+    },
+  },
+  {
+    route: 'etherfi', kind: 'rate', adapter: etherfiAdapter,
+    capability: {
+      rewardTruth: 'Onchain weETH share growth; additional restaking rewards unknown',
+      exactIdentity: 'Ethereum canonical eETH/weETH token',
+      zeroProofRoles: [], unsupportedPolicy: 'unknown',
     },
   },
   {

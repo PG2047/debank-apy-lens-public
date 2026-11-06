@@ -3,7 +3,7 @@
 [English](DATA_SOURCES.md) · [中文](DATA_SOURCES.zh-CN.md)
 
 This document, the public code, and tests define behavior. See
-[protocol coverage](PROTOCOLS.md) for all 12 rate adapters and 3 LP routes, and
+[protocol coverage](PROTOCOLS.md) for all 19 rate adapters and 3 LP routes, and
 [EVM deployments](EVM_DEPLOYMENTS.md) for the full chain directory.
 
 ## EVM routing and invariants
@@ -180,3 +180,18 @@ page may leave an old worker active.
 - [Aave V4 schema](https://github.com/aave/aave-v4-sdk/blob/main/packages/graphql/schema.graphql)
 - [Sky active Chainlog](https://chainlog.skyeco.com/api/mainnet/active.json)
 - [Sky reward contract](https://github.com/sky-ecosystem/endgame-toolkit/blob/4f238f9b23298190150d49482bad56c00f0af825/src/synthetix/StakingRewards.sol)
+
+## v0.6.0 protocol additions
+
+- Pendle: official paginated market catalog; exact PT identity, current implied APY, and expiry handling. LP/YT and points are excluded.
+- Curve: exact pool/LP/gauge plus constituent; official seven-day pool base APY. Personal gauge rewards remain unknown.
+- Beefy: exact active standard vault; official net composite APY, without re-adding strategy rewards or intrinsic yield.
+- Yearn: exact vault and asset; seven-day net share-price growth annualized as `(today / weekAgo)^(365/7) - 1`.
+- Lido/Rocket Pool: exact canonical share token and chain; provider APR converted with daily compounding and labeled as an estimate.
+- ether.fi: exact Ethereum eETH/weETH; current versus historical weETH `getRate()` through the existing 24-hour RPC engine. Extra restaking rewards remain unknown.
+
+New API catalogs are cached in memory for five minutes, with at most 64 entries.
+Pendle reads all pages up to a 2,000-market budget. Full Curve and Beefy catalogs
+have an explicit 8 MiB response budget; other new endpoints retain the shared
+2 MiB limit. Existing request concurrency and card deadlines still apply. The
+[protocol guide](PROTOCOLS.md) defines the chain and product limits.

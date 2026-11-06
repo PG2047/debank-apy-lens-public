@@ -18,6 +18,12 @@ export const APPROVED_HOST_PERMISSIONS = [
   'https://api.fluid.instadapp.io/*',
   'https://ethena.fi/*',
   'https://api.falcon.finance/*',
+  'https://api-v2.pendle.finance/*',
+  'https://api.curve.finance/*',
+  'https://api.beefy.finance/*',
+  'https://ydaemon.yearn.fi/*',
+  'https://eth-api.lido.fi/*',
+  'https://api.rocketpool.net/*',
 
   ...new Set([
     ...Object.values(PUBLIC_RPC).map((url) => `${new URL(url).origin}/*`),
